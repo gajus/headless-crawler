@@ -48,6 +48,16 @@ export default (): Promise<HttpServerType> => {
     `);
   });
 
+  app.get('/scrape/title-user-agent', (req, res) => {
+    res.send(`
+      <html>
+        <head>
+          <title>${req.get('user-agent')}</title>
+        </head>
+      </html>
+    `);
+  });
+
   app.get('/crawl/single-page-with-links', (req, res) => {
     res.send(`
       <html>

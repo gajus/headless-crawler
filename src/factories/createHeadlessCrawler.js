@@ -20,7 +20,7 @@ const defaultExtractContent = `(() => {
   return {
     title: document.title
   };
-})`;
+})()`;
 
 const defaultFilterLink = (link, scrapedLinkHistory) => {
   for (const scrapedLink of scrapedLinkHistory) {
@@ -45,6 +45,7 @@ const createHeadlessCrawlerConfiguration: CreateHeadlessCrawlerConfigurationType
     browser: headlessCrawlerUserConfiguration.browser,
     extractContent: headlessCrawlerUserConfiguration.extractContent || defaultExtractContent,
     filterLink: headlessCrawlerUserConfiguration.filterLink || defaultFilterLink,
+    onPage: headlessCrawlerUserConfiguration.onPage,
     onResult: headlessCrawlerUserConfiguration.onResult || defaultResultHandler
   };
 };
@@ -64,6 +65,10 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
     log.debug('opening %s URL', scrapeConfiguration.url);
 
     const page = await browser.newPage();
+
+    if (headlessCrawlerConfiguration.onPage) {
+      await headlessCrawlerConfiguration.onPage(scrapeConfiguration, page);
+    }
 
     await page.goto(scrapeConfiguration.url);
 

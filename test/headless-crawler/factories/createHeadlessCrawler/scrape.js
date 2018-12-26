@@ -83,3 +83,28 @@ test('removes duplicate links', async (t) => {
     url: serverAddress + '/scrape/single-page-with-duplicate-links'
   });
 });
+
+test('evaluates `onPage` before evaluating `extractContent`', async (t) => {
+  const browser = await createBrowser();
+
+  const onPage = async (scrapeConfiguration, page) => {
+    await page.setUserAgent('foo');
+  };
+
+  const headlessCrawler = createHeadlessCrawler({
+    browser,
+    onPage
+  });
+
+  const result = await headlessCrawler.scrape({
+    url: serverAddress + '/scrape/title-user-agent'
+  });
+
+  t.deepEqual(result, {
+    content: {
+      title: 'foo'
+    },
+    links: [],
+    url: serverAddress + '/scrape/title-user-agent'
+  });
+});
