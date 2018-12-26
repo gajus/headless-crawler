@@ -9,6 +9,18 @@
 
 A crawler implemented using a headless browser (Chrome).
 
+* [headless-crawler 👻](#headless-crawler)
+    * [Usage](#headless-crawler-usage)
+    * [Configuration](#headless-crawler-configuration)
+        * [Default `extractContent`](#headless-crawler-configuration-default-extractcontent)
+        * [Default `filterLink`](#headless-crawler-configuration-default-filterlink)
+        * [Default `onResult`](#headless-crawler-configuration-default-onresult)
+    * [Types](#headless-crawler-types)
+    * [Logging](#headless-crawler-logging)
+    * [FAQ](#headless-crawler-faq)
+        * [What makes `headless-crawler` different from `headless-chrome-crawler`?](#headless-crawler-faq-what-makes-headless-crawler-different-from-headless-chrome-crawler)
+
+
 <a name="headless-crawler-usage"></a>
 ## Usage
 
