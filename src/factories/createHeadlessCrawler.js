@@ -6,8 +6,8 @@ import {
   uniq
 } from 'lodash';
 import type {
-  BrowserType,
-  PageType
+  PuppeteerBrowserType,
+  PuppeteerPageType
 } from '../types';
 import Logger from '../Logger';
 
@@ -22,8 +22,14 @@ type ScrapeResultType<T> = {|
   +url: string
 |};
 
+/**
+ * @property browser Instance of [Puppeteer Browser](https://pptr.dev/#?product=Puppeteer&version=v1.11.0&show=api-class-browser).
+ * @property extractContent A function [evaluted](https://pptr.dev/#?product=Puppeteer&version=v1.11.0&show=api-pageevaluatepagefunction-args) in the context of the browser. The result of the function is used to describe the contents of the website (see `ScrapeResultType#content` property).
+ * @property filterLink Identifies which URLs to follow.
+ * @property onResult Invoked after content is extracted from a new page.
+ */
 type HeadlessCrawlerConfigurationType<T: *> = {|
-  +browser: BrowserType,
+  +browser: PuppeteerBrowserType,
   +extractContent: () => ScrapeResultType<T>,
   +filterLink: (link: SiteLinkType) => boolean,
   +onResult?: (result: T) => void
@@ -43,7 +49,7 @@ const defaultExtractContent = new Function(`
   }
 `);
 
-const extractLinks = (page: PageType): $ReadOnlyArray<string> => {
+const extractLinks = (page: PuppeteerPageType): $ReadOnlyArray<string> => {
   return page.evaluate(new Function(`
     return [].slice.apply(document.querySelectorAll('a')).map(node => node.href);
   `));

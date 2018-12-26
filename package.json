@@ -65,7 +65,7 @@
   ],
   "license": "BSD-3-Clause",
   "main": "./dist/index.js",
-  "name": "slonik",
+  "name": "headless-crawler",
   "nyc": {
     "all": true,
     "exclude": [
@@ -96,5 +96,5 @@
     "lint": "eslint ./src ./test && flow",
     "test": "NODE_ENV=test nyc ava --verbose --serial"
   },
-  "version": "5.0.0"
+  "version": "1.0.0"
 }

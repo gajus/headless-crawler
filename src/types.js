@@ -1,7 +1,7 @@
 // @flow
 
 // eslint-disable-next-line flowtype/no-weak-types
-export type BrowserType = any;
+export type PuppeteerBrowserType = any;
 
 // eslint-disable-next-line flowtype/no-weak-types
-export type PageType = any;
+export type PuppeteerPageType = any;
