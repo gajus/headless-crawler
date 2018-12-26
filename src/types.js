@@ -11,7 +11,8 @@ export type PuppeteerPageType = any;
 type SiteLinkType = {|
   +linkDepth: number,
   +linkUrl: string,
-  +originUrl: string
+  +originUrl: string,
+  +path: $ReadOnlyArray<string>
 |};
 
 // @todo Use Flow generic.
