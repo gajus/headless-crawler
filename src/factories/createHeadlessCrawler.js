@@ -1,8 +1,7 @@
 // @flow
 
-// eslint-disable-next-line fp/no-events
-import EventEmitter from 'events';
 import {
+  constant,
   uniq
 } from 'lodash';
 import type {
@@ -16,8 +15,12 @@ type SiteLinkType = {|
   +originUrl: string
 |};
 
-type ScrapeResultType<T> = {|
-  +content: T,
+// @todo Use Flow generic.
+// eslint-disable-next-line flowtype/no-weak-types
+type ContentType = any;
+
+type ScrapeResultType = {|
+  +content: ContentType,
   +links: $ReadOnlyArray<string>,
   +url: string
 |};
@@ -28,26 +31,53 @@ type ScrapeResultType<T> = {|
  * @property filterLink Identifies which URLs to follow.
  * @property onResult Invoked after content is extracted from a new page.
  */
-type HeadlessCrawlerConfigurationType<T: *> = {|
+type HeadlessCrawlerUserConfigurationType = {|
   +browser: PuppeteerBrowserType,
-  +extractContent: () => ScrapeResultType<T>,
+  +extractContent?: string,
+  +filterLink?: (link: SiteLinkType) => boolean,
+  +onResult?: (result: ContentType) => void
+|};
+
+type HeadlessCrawlerConfigurationType = {|
+  +browser: PuppeteerBrowserType,
+  +extractContent: string,
   +filterLink: (link: SiteLinkType) => boolean,
-  +onResult?: (result: T) => void
+  +onResult: (result: ContentType) => void
+|};
+
+type ScrapeConfigurationType = {|
+  +url: string
 |};
 
 type CrawlConfigurationType = {|
   +startUrl: string
 |};
 
+type CreateHeadlessCrawlerType = (headlessCrawlerUserConfiguration: HeadlessCrawlerUserConfigurationType) => {|
+  crawl: (configuration: CrawlConfigurationType) => Promise<void>,
+  scrape: (configuration: ScrapeConfigurationType) => Promise<ScrapeResultType>
+|};
+
+type CreateHeadlessCrawlerConfigurationType = (headlessCrawlerUserConfiguration: HeadlessCrawlerUserConfigurationType) => HeadlessCrawlerConfigurationType;
+
 const log = Logger.child({
-  namespace: 'headless-crawler'
+  namespace: 'createHeadlessCrawler'
 });
 
-const defaultExtractContent = new Function(`
+const defaultExtractContent = `(() => {
   return {
     title: document.title
-  }
-`);
+  };
+})`;
+
+const createHeadlessCrawlerConfiguration: CreateHeadlessCrawlerConfigurationType = (headlessCrawlerUserConfiguration) => {
+  return {
+    browser: headlessCrawlerUserConfiguration.browser,
+    extractContent: headlessCrawlerUserConfiguration.extractContent || defaultExtractContent,
+    filterLink: headlessCrawlerUserConfiguration.filterLink || constant(true),
+    onResult: headlessCrawlerUserConfiguration.onResult || constant(null)
+  };
+};
 
 const extractLinks = (page: PuppeteerPageType): $ReadOnlyArray<string> => {
   return page.evaluate(new Function(`
@@ -55,17 +85,17 @@ const extractLinks = (page: PuppeteerPageType): $ReadOnlyArray<string> => {
   `));
 };
 
-export default (headlessCrawlerConfiguration: HeadlessCrawlerConfigurationType) => {
-  const eventEmitter = new EventEmitter();
+const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserConfiguration) => {
+  const headlessCrawlerConfiguration = createHeadlessCrawlerConfiguration(headlessCrawlerUserConfiguration);
 
   const browser = headlessCrawlerConfiguration.browser;
 
-  const scrape = async (url: string) => {
-    log.debug('opening %s URL', url);
+  const scrape = async (scrapeConfiguration: ScrapeConfigurationType) => {
+    log.debug('opening %s URL', scrapeConfiguration.url);
 
     const page = await browser.newPage();
 
-    await page.goto(url);
+    await page.goto(scrapeConfiguration.url);
 
     const links = await extractLinks(page);
 
@@ -73,7 +103,7 @@ export default (headlessCrawlerConfiguration: HeadlessCrawlerConfigurationType) 
       links
     }, 'found links');
 
-    const content = await page.evaluate(headlessCrawlerConfiguration.extractContent || defaultExtractContent);
+    const content = await page.evaluate(headlessCrawlerConfiguration.extractContent);
 
     await page.close();
 
@@ -90,11 +120,11 @@ export default (headlessCrawlerConfiguration: HeadlessCrawlerConfigurationType) 
     let nextUrl = crawlConfiguration.startUrl;
 
     while (true) {
-      const resource = await scrape(nextUrl);
+      const resource = await scrape({
+        url: nextUrl
+      });
 
-      if (headlessCrawlerConfiguration.onResult) {
-        headlessCrawlerConfiguration.onResult(resource);
-      }
+      headlessCrawlerConfiguration.onResult(resource);
 
       log.debug('discovered %d new links', resource.links.length);
 
@@ -120,8 +150,9 @@ export default (headlessCrawlerConfiguration: HeadlessCrawlerConfigurationType) 
   };
 
   return {
-    ...eventEmitter,
     crawl,
     scrape
   };
 };
+
+export default createHeadlessCrawler;

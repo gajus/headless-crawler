@@ -20,17 +20,19 @@ after(() => {
   httpServer.close();
 });
 
-const extractContentConstantNull = new Function('return null;');
+const extractContentConstantNull = '(() => { return null; })()';
 
 test('evaluates `extractContent` to extract content from the resulint page', async (t) => {
   const browser = await createBrowser();
 
-  const headlessCrawler = await createHeadlessCrawler({
+  const headlessCrawler = createHeadlessCrawler({
     browser,
-    extractContent: new Function('return 1;')
+    extractContent: '(() => { return 1; })()'
   });
 
-  const result = await headlessCrawler.scrape(serverAddress + '/scrape/single-page-with-no-links');
+  const result = await headlessCrawler.scrape({
+    url: serverAddress + '/scrape/single-page-with-no-links'
+  });
 
   t.deepEqual(result, {
     content: 1,
@@ -42,12 +44,14 @@ test('evaluates `extractContent` to extract content from the resulint page', asy
 test('extracts all links', async (t) => {
   const browser = await createBrowser();
 
-  const headlessCrawler = await createHeadlessCrawler({
+  const headlessCrawler = createHeadlessCrawler({
     browser,
     extractContent: extractContentConstantNull
   });
 
-  const result = await headlessCrawler.scrape(serverAddress + '/scrape/single-page-with-links');
+  const result = await headlessCrawler.scrape({
+    url: serverAddress + '/scrape/single-page-with-links'
+  });
 
   t.deepEqual(result, {
     content: null,
@@ -62,12 +66,14 @@ test('extracts all links', async (t) => {
 test('removes duplicate links', async (t) => {
   const browser = await createBrowser();
 
-  const headlessCrawler = await createHeadlessCrawler({
+  const headlessCrawler = createHeadlessCrawler({
     browser,
     extractContent: extractContentConstantNull
   });
 
-  const result = await headlessCrawler.scrape(serverAddress + '/scrape/single-page-with-duplicate-links');
+  const result = await headlessCrawler.scrape({
+    url: serverAddress + '/scrape/single-page-with-duplicate-links'
+  });
 
   t.deepEqual(result, {
     content: null,

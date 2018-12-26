@@ -24,14 +24,14 @@ after(() => {
   httpServer.close();
 });
 
-const extractContentConstantNull = new Function('return null;');
+const extractContentConstantNull = '(() => { return null; })()';
 
 test('uses `filterLink` to evaluate which URLs to scrape', async (t) => {
   const browser = await createBrowser();
 
   const filterLink = stub().returns(false);
 
-  const headlessCrawler = await createHeadlessCrawler({
+  const headlessCrawler = createHeadlessCrawler({
     browser,
     extractContent: extractContentConstantNull,
     filterLink
@@ -41,7 +41,7 @@ test('uses `filterLink` to evaluate which URLs to scrape', async (t) => {
     startUrl: serverAddress + '/crawl/single-page-with-links'
   });
 
-  t.true(filterLink.callCount === 2);
+  t.true(filterLink.callCount === 3);
   t.deepEqual(filterLink.args, [
     [
       {
@@ -54,15 +54,21 @@ test('uses `filterLink` to evaluate which URLs to scrape', async (t) => {
         linkUrl: serverAddress + '/crawl/single-page-with-links/b',
         originUrl: serverAddress + '/crawl/single-page-with-links'
       }
+    ],
+    [
+      {
+        linkUrl: serverAddress + '/crawl/single-page-with-links/c',
+        originUrl: serverAddress + '/crawl/single-page-with-links'
+      }
     ]
   ]);
 });
 
-test.only('scrapes descendent links', async (t) => {
+test('scrapes descendent links', async (t) => {
   const browser = await createBrowser();
   const onResult = spy();
 
-  const headlessCrawler = await createHeadlessCrawler({
+  const headlessCrawler = createHeadlessCrawler({
     browser,
     extractContent: extractContentConstantNull,
     filterLink: () => {
