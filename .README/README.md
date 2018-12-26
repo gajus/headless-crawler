@@ -8,6 +8,8 @@
 
 A crawler implemented using a headless browser (Chrome).
 
+{"gitdown": "contents"}
+
 ## Usage
 
 ```js
