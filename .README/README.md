@@ -109,7 +109,33 @@ The default `onResult` logs the result and advances crawler to the next URL.
 
 ## Recipes
 
-### Configuring request parameters
+### Inject jQuery
+
+Use `extractContent` to manipulate the Puppeteer Page object after it has been determined to be ready and create the function used to extract content from the website.
+
+```js
+const main = async () => {
+  const browser = await puppeteer.launch();
+
+  const headlessCrawler = createHeadlessCrawler({
+    browser,
+    extractContent: async (page) => {
+      await page.addScriptTag({
+        url: 'https://code.jquery.com/jquery-3.3.1.min.js'
+      });
+
+      return `(() => {
+        return $('title').text();
+      })()`;
+    }
+  });
+};
+
+main();
+
+```
+
+### Configure request parameters
 
 Request parameters (such as geolocation, user-agent and viewport) can be configured using `onPage` handler, e.g.
 
