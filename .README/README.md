@@ -82,6 +82,12 @@ The default `filterLink` function includes all URLs and does not visit previousl
 
 ```
 
+## Types
+
+This package is using [Flow](https://flow.org/) type annotations.
+
+Refer to [`./src/types.js`](./src/types.js) for method parameter and result types.
+
 ## Logging
 
 This package is using [`roarr`](https://www.npmjs.com/package/roarr) logger to log the program's state.
