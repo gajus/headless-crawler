@@ -14,7 +14,7 @@ export default (): Promise<HttpServerType> => {
     res.send(`
       <html>
         <head>
-          <title>foo</title>
+          <title>single-page-with-no-links</title>
         </head>
       </html>
     `);

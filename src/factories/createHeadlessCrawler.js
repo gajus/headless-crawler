@@ -69,7 +69,7 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
     const page = await browser.newPage();
 
     if (headlessCrawlerConfiguration.onPage) {
-      await headlessCrawlerConfiguration.onPage(scrapeConfiguration, page);
+      await headlessCrawlerConfiguration.onPage(page, scrapeConfiguration);
     }
 
     await page.goto(scrapeConfiguration.url);
@@ -80,7 +80,7 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
       links
     }, 'found links');
 
-    const content = await page.evaluate(await headlessCrawlerConfiguration.extractContent(page));
+    const content = await page.evaluate(await headlessCrawlerConfiguration.extractContent(page, scrapeConfiguration));
 
     await page.close();
 

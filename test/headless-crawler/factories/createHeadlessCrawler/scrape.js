@@ -24,7 +24,7 @@ const extractContentConstantNull = () => {
   return '(() => { return null; })()';
 };
 
-test('evaluates `extractContent` to extract content from the resulint page', async (t) => {
+test('evaluates `extractContent` to extract content from the resulting page', async (t) => {
   const browser = await createBrowser();
 
   const headlessCrawler = createHeadlessCrawler({
@@ -40,6 +40,33 @@ test('evaluates `extractContent` to extract content from the resulint page', asy
 
   t.deepEqual(result, {
     content: 1,
+    links: [],
+    url: serverAddress + '/scrape/single-page-with-no-links'
+  });
+});
+
+test('evaluates `extractContent` with an instance of page', async (t) => {
+  const browser = await createBrowser();
+
+  const headlessCrawler = createHeadlessCrawler({
+    browser,
+    extractContent: async (page) => {
+      await page.addScriptTag({
+        url: 'https://code.jquery.com/jquery-3.3.1.min.js'
+      });
+
+      return `(() => {
+        return $('title').text();
+      })()`;
+    }
+  });
+
+  const result = await headlessCrawler.scrape({
+    url: serverAddress + '/scrape/single-page-with-no-links'
+  });
+
+  t.deepEqual(result, {
+    content: 'single-page-with-no-links',
     links: [],
     url: serverAddress + '/scrape/single-page-with-no-links'
   });
@@ -91,7 +118,7 @@ test('removes duplicate links', async (t) => {
 test('evaluates `onPage` before evaluating `extractContent`', async (t) => {
   const browser = await createBrowser();
 
-  const onPage = async (scrapeConfiguration, page) => {
+  const onPage = async (page) => {
     await page.setUserAgent('foo');
   };
 
