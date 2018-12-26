@@ -50,3 +50,21 @@ type HeadlessCrawlerConfigurationType<T: *> = {|
 |};
 
 ```
+
+## Logging
+
+This package is using [`roarr`](https://www.npmjs.com/package/roarr) logger to log the program's state.
+
+Export `ROARR_LOG=true` environment variable to enable log printing to stdout.
+
+Use [`roarr-cli`](https://github.com/gajus/roarr-cli) program to pretty-print the logs.
+
+## FAQ
+
+### What makes `headless-crawler` different from `headless-chrome-crawler`?
+
+[`headless-chrome-crawler`](https://github.com/yujiosaka/headless-chrome-crawler) is the only other maintained crawler in the Node.js ecosystem that is using a headless browser to crawl websites.
+
+It appears that `headless-chrome-crawler` is no longer maintained. At the time of this writing, author of `headless-chrome-crawler` has not made public contributions in over 6 months and the package includes bugs as a result of [hardcoded dependency versions](https://github.com/yujiosaka/headless-chrome-crawler/blob/ad95c2c4b356c8fdc60d16f8b013cc9a043a9bc6/package.json#L28-L34).
+
+`headless-crawler` implements core features of `headless-chrome-crawler`.
