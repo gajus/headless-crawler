@@ -49,7 +49,7 @@ main();
  * @property filterLink Identifies which URLs to follow.
  * @property onPage Invoked when [Puppeteer Page](https://pptr.dev/#?product=Puppeteer&version=v1.11.0&show=api-class-page) instance is instantiated.
  * @property onResult Invoked after content is extracted from a new page. Must return a boolean value indicating whether the crawler should advance to the next URL.
- * @property waitFor Invoked before links are aggregated from the website and before `extractContent`. Note: Must return an unresolved promise.
+ * @property waitFor Invoked before links are aggregated from the website and before `extractContent`.
  */
 type HeadlessCrawlerConfigurationType = {|
   +browser: PuppeteerBrowserType,
@@ -173,8 +173,6 @@ const main = async () => {
 main();
 
 ```
-
-Use `onPage` to
 
 ## Types
 
