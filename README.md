@@ -17,7 +17,8 @@ A crawler implemented using a headless browser (Chrome).
         * [Default `filterLink`](#headless-crawler-configuration-default-filterlink)
         * [Default `onResult`](#headless-crawler-configuration-default-onresult)
     * [Recipes](#headless-crawler-recipes)
-        * [Configuring request parameters](#headless-crawler-recipes-configuring-request-parameters)
+        * [Inject jQuery](#headless-crawler-recipes-inject-jquery)
+        * [Configure request parameters](#headless-crawler-recipes-configure-request-parameters)
     * [Types](#headless-crawler-types)
     * [Logging](#headless-crawler-logging)
     * [FAQ](#headless-crawler-faq)
@@ -130,8 +131,35 @@ The default `onResult` logs the result and advances crawler to the next URL.
 <a name="headless-crawler-recipes"></a>
 ## Recipes
 
-<a name="headless-crawler-recipes-configuring-request-parameters"></a>
-### Configuring request parameters
+<a name="headless-crawler-recipes-inject-jquery"></a>
+### Inject jQuery
+
+Use `extractContent` to manipulate the Puppeteer Page object after it has been determined to be ready and create the function used to extract content from the website.
+
+```js
+const main = async () => {
+  const browser = await puppeteer.launch();
+
+  const headlessCrawler = createHeadlessCrawler({
+    browser,
+    extractContent: async (page) => {
+      await page.addScriptTag({
+        url: 'https://code.jquery.com/jquery-3.3.1.min.js'
+      });
+
+      return `(() => {
+        return $('title').text();
+      })()`;
+    }
+  });
+};
+
+main();
+
+```
+
+<a name="headless-crawler-recipes-configure-request-parameters"></a>
+### Configure request parameters
 
 Request parameters (such as geolocation, user-agent and viewport) can be configured using `onPage` handler, e.g.
 
