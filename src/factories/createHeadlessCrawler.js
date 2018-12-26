@@ -5,60 +5,13 @@ import {
   uniq
 } from 'lodash';
 import type {
-  PuppeteerBrowserType,
-  PuppeteerPageType
+  CrawlConfigurationType,
+  CreateHeadlessCrawlerConfigurationType,
+  CreateHeadlessCrawlerType,
+  PuppeteerPageType,
+  ScrapeConfigurationType
 } from '../types';
 import Logger from '../Logger';
-
-type SiteLinkType = {|
-  +linkUrl: string,
-  +originUrl: string
-|};
-
-// @todo Use Flow generic.
-// eslint-disable-next-line flowtype/no-weak-types
-type ContentType = any;
-
-type ScrapeResultType = {|
-  +content: ContentType,
-  +links: $ReadOnlyArray<string>,
-  +url: string
-|};
-
-/**
- * @property browser Instance of [Puppeteer Browser](https://pptr.dev/#?product=Puppeteer&version=v1.11.0&show=api-class-browser).
- * @property extractContent A function [evaluted](https://pptr.dev/#?product=Puppeteer&version=v1.11.0&show=api-pageevaluatepagefunction-args) in the context of the browser. The result of the function is used to describe the contents of the website (see `ScrapeResultType#content` property).
- * @property filterLink Identifies which URLs to follow.
- * @property onResult Invoked after content is extracted from a new page.
- */
-type HeadlessCrawlerUserConfigurationType = {|
-  +browser: PuppeteerBrowserType,
-  +extractContent?: string,
-  +filterLink?: (link: SiteLinkType) => boolean,
-  +onResult?: (result: ScrapeResultType) => void
-|};
-
-type HeadlessCrawlerConfigurationType = {|
-  +browser: PuppeteerBrowserType,
-  +extractContent: string,
-  +filterLink: (link: SiteLinkType, scrapedLinkHistory: $ReadOnlyArray<SiteLinkType>) => boolean,
-  +onResult: (result: ScrapeResultType) => void
-|};
-
-type ScrapeConfigurationType = {|
-  +url: string
-|};
-
-type CrawlConfigurationType = {|
-  +startUrl: string
-|};
-
-type CreateHeadlessCrawlerType = (headlessCrawlerUserConfiguration: HeadlessCrawlerUserConfigurationType) => {|
-  crawl: (configuration: CrawlConfigurationType) => Promise<void>,
-  scrape: (configuration: ScrapeConfigurationType) => Promise<ScrapeResultType>
-|};
-
-type CreateHeadlessCrawlerConfigurationType = (headlessCrawlerUserConfiguration: HeadlessCrawlerUserConfigurationType) => HeadlessCrawlerConfigurationType;
 
 const log = Logger.child({
   namespace: 'createHeadlessCrawler'
