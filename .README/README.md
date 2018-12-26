@@ -10,6 +10,10 @@ A crawler implemented using a headless browser (Chrome).
 
 {"gitdown": "contents"}
 
+## Features
+
+* Scrapes websites using user-provided `extractContent` function and follows the observed URLs as instructed by `filterLink` and `onResult`.
+
 ## Usage
 
 ```js
