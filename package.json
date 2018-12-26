@@ -1,0 +1,100 @@
+{
+  "author": {
+    "email": "gajus@gajus.com",
+    "name": "Gajus Kuizinas",
+    "url": "http://gajus.com"
+  },
+  "ava": {
+    "require": [
+      "@babel/register"
+    ]
+  },
+  "dependencies": {
+    "ajv": "^6.6.2",
+    "array-flatten": "^2.1.2",
+    "boolean": "^0.2.0",
+    "es6-error": "^4.1.1",
+    "express": "^4.16.4",
+    "get-stack-trace": "^2.0.1",
+    "jquery": "^3.3.1",
+    "lodash": "^4.17.11",
+    "pg": "^7.7.1",
+    "pg-connection-string": "^2.0.0",
+    "pretty-hrtime": "^1.0.3",
+    "puppeteer": "^1.11.0",
+    "roarr": "^2.12.0",
+    "serialize-error": "^3.0.0",
+    "ulid": "^2.3.0"
+  },
+  "description": "A crawler implemented using a headless browser (Chrome).",
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/plugin-transform-flow-strip-types": "^7.2.3",
+    "@babel/preset-env": "^7.2.3",
+    "@babel/register": "^7.0.0",
+    "ava": "^1.0.1",
+    "babel-plugin-istanbul": "^5.1.0",
+    "babel-plugin-transform-export-default-name": "^2.0.4",
+    "coveralls": "^3.0.2",
+    "eslint": "^5.11.0",
+    "eslint-config-canonical": "^15.0.1",
+    "flow-bin": "^0.89.0",
+    "flow-copy-source": "^2.0.2",
+    "gitdown": "^2.5.5",
+    "husky": "^1.2.1",
+    "nyc": "^13.1.0",
+    "semantic-release": "^15.13.1",
+    "sinon": "^7.2.2"
+  },
+  "engines": {
+    "node": ">=8.0"
+  },
+  "husky": {
+    "hooks": {
+      "post-commit": "npm run create-readme && git add README.md && git commit -m 'docs: generate docs' --no-verify",
+      "pre-commit": "npm run lint && npm run test && npm run build"
+    }
+  },
+  "keywords": [
+    "headless",
+    "crawler",
+    "spider",
+    "chrome",
+    "puppeteer"
+  ],
+  "license": "BSD-3-Clause",
+  "main": "./dist/index.js",
+  "name": "slonik",
+  "nyc": {
+    "all": true,
+    "exclude": [
+      "src/bin",
+      "src/queries/*.js"
+    ],
+    "include": [
+      "src/**/*.js"
+    ],
+    "instrument": false,
+    "reporter": [
+      "html",
+      "text-summary"
+    ],
+    "require": [
+      "@babel/register"
+    ],
+    "silent": true,
+    "sourceMap": false
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gajus/headless-crawler"
+  },
+  "scripts": {
+    "build": "rm -fr ./dist && NODE_ENV=production babel ./src --out-dir ./dist --copy-files --source-maps && flow-copy-source src dist",
+    "create-readme": "gitdown ./.README/README.md --output-file ./README.md",
+    "lint": "eslint ./src ./test && flow",
+    "test": "NODE_ENV=test nyc ava --verbose --serial"
+  },
+  "version": "5.0.0"
+}
