@@ -35,14 +35,14 @@ type HeadlessCrawlerUserConfigurationType = {|
   +browser: PuppeteerBrowserType,
   +extractContent?: string,
   +filterLink?: (link: SiteLinkType) => boolean,
-  +onResult?: (result: ContentType) => void
+  +onResult?: (result: ScrapeResultType) => void
 |};
 
 type HeadlessCrawlerConfigurationType = {|
   +browser: PuppeteerBrowserType,
   +extractContent: string,
-  +filterLink: (link: SiteLinkType) => boolean,
-  +onResult: (result: ContentType) => void
+  +filterLink: (link: SiteLinkType, scrapedLinkHistory: $ReadOnlyArray<SiteLinkType>) => boolean,
+  +onResult: (result: ScrapeResultType) => void
 |};
 
 type ScrapeConfigurationType = {|
@@ -70,11 +70,21 @@ const defaultExtractContent = `(() => {
   };
 })`;
 
+const defaultFilterLink = (link, scrapedLinkHistory) => {
+  for (const scrapedLink of scrapedLinkHistory) {
+    if (scrapedLink.linkUrl === link.linkUrl) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 const createHeadlessCrawlerConfiguration: CreateHeadlessCrawlerConfigurationType = (headlessCrawlerUserConfiguration) => {
   return {
     browser: headlessCrawlerUserConfiguration.browser,
     extractContent: headlessCrawlerUserConfiguration.extractContent || defaultExtractContent,
-    filterLink: headlessCrawlerUserConfiguration.filterLink || constant(true),
+    filterLink: headlessCrawlerUserConfiguration.filterLink || defaultFilterLink,
     onResult: headlessCrawlerUserConfiguration.onResult || constant(null)
   };
 };
@@ -116,6 +126,7 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
 
   const crawl = async (crawlConfiguration: CrawlConfigurationType) => {
     const linkQueue = [];
+    const scrapedLinkHistory = [];
 
     let nextUrl = crawlConfiguration.startUrl;
 
@@ -134,7 +145,7 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
           originUrl: nextUrl
         };
 
-        if (headlessCrawlerConfiguration.filterLink(queueLink)) {
+        if (headlessCrawlerConfiguration.filterLink(queueLink, scrapedLinkHistory)) {
           linkQueue.push(queueLink);
         }
       }
@@ -142,7 +153,11 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
       log.debug('link queue size %d', linkQueue.length);
 
       if (linkQueue.length) {
-        nextUrl = linkQueue.shift().linkUrl;
+        const nextLink = linkQueue.shift();
+
+        scrapedLinkHistory.push(nextLink);
+
+        nextUrl = nextLink.linkUrl;
       } else {
         break;
       }

@@ -42,26 +42,21 @@ test('uses `filterLink` to evaluate which URLs to scrape', async (t) => {
   });
 
   t.true(filterLink.callCount === 3);
-  t.deepEqual(filterLink.args, [
-    [
-      {
-        linkUrl: serverAddress + '/crawl/single-page-with-links/a',
-        originUrl: serverAddress + '/crawl/single-page-with-links'
-      }
-    ],
-    [
-      {
-        linkUrl: serverAddress + '/crawl/single-page-with-links/b',
-        originUrl: serverAddress + '/crawl/single-page-with-links'
-      }
-    ],
-    [
-      {
-        linkUrl: serverAddress + '/crawl/single-page-with-links/c',
-        originUrl: serverAddress + '/crawl/single-page-with-links'
-      }
-    ]
-  ]);
+
+  t.deepEqual(filterLink.args[0][0], {
+    linkUrl: serverAddress + '/crawl/single-page-with-links/a',
+    originUrl: serverAddress + '/crawl/single-page-with-links'
+  });
+
+  t.deepEqual(filterLink.args[1][0], {
+    linkUrl: serverAddress + '/crawl/single-page-with-links/b',
+    originUrl: serverAddress + '/crawl/single-page-with-links'
+  });
+
+  t.deepEqual(filterLink.args[2][0], {
+    linkUrl: serverAddress + '/crawl/single-page-with-links/c',
+    originUrl: serverAddress + '/crawl/single-page-with-links'
+  });
 });
 
 test('scrapes descendent links', async (t) => {
@@ -83,38 +78,31 @@ test('scrapes descendent links', async (t) => {
 
   t.true(onResult.callCount === 4);
 
-  t.deepEqual(onResult.args, [
-    [
-      {
-        content: null,
-        links: [
-          serverAddress + '/crawl/single-page-with-links/a',
-          serverAddress + '/crawl/single-page-with-links/b',
-          serverAddress + '/crawl/single-page-with-links/c'
-        ],
-        url: serverAddress + '/crawl/single-page-with-links'
-      }
+  t.deepEqual(onResult.args[0][0], {
+    content: null,
+    links: [
+      serverAddress + '/crawl/single-page-with-links/a',
+      serverAddress + '/crawl/single-page-with-links/b',
+      serverAddress + '/crawl/single-page-with-links/c'
     ],
-    [
-      {
-        content: null,
-        links: [],
-        url: serverAddress + '/crawl/single-page-with-links/a'
-      }
-    ],
-    [
-      {
-        content: null,
-        links: [],
-        url: serverAddress + '/crawl/single-page-with-links/b'
-      }
-    ],
-    [
-      {
-        content: null,
-        links: [],
-        url: serverAddress + '/crawl/single-page-with-links/c'
-      }
-    ]
-  ]);
+    url: serverAddress + '/crawl/single-page-with-links'
+  });
+
+  t.deepEqual(onResult.args[1][0], {
+    content: null,
+    links: [],
+    url: serverAddress + '/crawl/single-page-with-links/a'
+  });
+
+  t.deepEqual(onResult.args[2][0], {
+    content: null,
+    links: [],
+    url: serverAddress + '/crawl/single-page-with-links/b'
+  });
+
+  t.deepEqual(onResult.args[3][0], {
+    content: null,
+    links: [],
+    url: serverAddress + '/crawl/single-page-with-links/c'
+  });
 });
