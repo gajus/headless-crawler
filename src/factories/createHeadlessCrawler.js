@@ -1,7 +1,6 @@
 // @flow
 
 import {
-  constant,
   uniq
 } from 'lodash';
 import type {
@@ -33,12 +32,20 @@ const defaultFilterLink = (link, scrapedLinkHistory) => {
   return true;
 };
 
+const defaultResultHandler = (scrapeResult) => {
+  log.debug({
+    scrapeResult
+  }, 'new result');
+
+  return true;
+};
+
 const createHeadlessCrawlerConfiguration: CreateHeadlessCrawlerConfigurationType = (headlessCrawlerUserConfiguration) => {
   return {
     browser: headlessCrawlerUserConfiguration.browser,
     extractContent: headlessCrawlerUserConfiguration.extractContent || defaultExtractContent,
     filterLink: headlessCrawlerUserConfiguration.filterLink || defaultFilterLink,
-    onResult: headlessCrawlerUserConfiguration.onResult || constant(null)
+    onResult: headlessCrawlerUserConfiguration.onResult || defaultResultHandler
   };
 };
 
@@ -88,7 +95,11 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
         url: nextUrl
       });
 
-      headlessCrawlerConfiguration.onResult(resource);
+      const shouldAdvance = await headlessCrawlerConfiguration.onResult(resource);
+
+      if (!shouldAdvance) {
+        break;
+      }
 
       log.debug('discovered %d new links', resource.links.length);
 

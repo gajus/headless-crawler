@@ -5,7 +5,6 @@ import test, {
   before
 } from 'ava';
 import {
-  spy,
   stub
 } from 'sinon';
 import createHeadlessCrawler from '../../../../src/factories/createHeadlessCrawler';
@@ -61,7 +60,7 @@ test('uses `filterLink` to evaluate which URLs to scrape', async (t) => {
 
 test('scrapes descendent links', async (t) => {
   const browser = await createBrowser();
-  const onResult = spy();
+  const onResult = stub().returns(true);
 
   const headlessCrawler = createHeadlessCrawler({
     browser,
@@ -104,5 +103,35 @@ test('scrapes descendent links', async (t) => {
     content: null,
     links: [],
     url: serverAddress + '/crawl/single-page-with-links/c'
+  });
+});
+
+test('scrapes descendent until `onResult` returns `false`', async (t) => {
+  const browser = await createBrowser();
+  const onResult = stub().returns(false);
+
+  const headlessCrawler = createHeadlessCrawler({
+    browser,
+    extractContent: extractContentConstantNull,
+    filterLink: () => {
+      return true;
+    },
+    onResult
+  });
+
+  await headlessCrawler.crawl({
+    startUrl: serverAddress + '/crawl/single-page-with-links'
+  });
+
+  t.true(onResult.callCount === 1);
+
+  t.deepEqual(onResult.args[0][0], {
+    content: null,
+    links: [
+      serverAddress + '/crawl/single-page-with-links/a',
+      serverAddress + '/crawl/single-page-with-links/b',
+      serverAddress + '/crawl/single-page-with-links/c'
+    ],
+    url: serverAddress + '/crawl/single-page-with-links'
   });
 });
