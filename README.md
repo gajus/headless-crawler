@@ -10,6 +10,7 @@
 A crawler implemented using a headless browser (Chrome).
 
 * [headless-crawler 👻](#headless-crawler)
+    * [Features](#headless-crawler-features)
     * [Usage](#headless-crawler-usage)
     * [Configuration](#headless-crawler-configuration)
         * [Default `extractContent`](#headless-crawler-configuration-default-extractcontent)
@@ -20,6 +21,11 @@ A crawler implemented using a headless browser (Chrome).
     * [FAQ](#headless-crawler-faq)
         * [What makes `headless-crawler` different from `headless-chrome-crawler`?](#headless-crawler-faq-what-makes-headless-crawler-different-from-headless-chrome-crawler)
 
+
+<a name="headless-crawler-features"></a>
+## Features
+
+* Scrapes websites using user-provided `extractContent` function and follows the observed URLs as instructed by `filterLink` and `onResult`.
 
 <a name="headless-crawler-usage"></a>
 ## Usage
