@@ -69,10 +69,10 @@ main();
  */
 type HeadlessCrawlerConfigurationType = {|
   +browser: PuppeteerBrowserType,
-  +extractContent?: (scrapeConfiguration: ScrapeConfigurationType, page: PuppeteerPageType) => MaybePromiseType<string>,
+  +extractContent?: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => MaybePromiseType<string>,
   +filterLink?: (link: SiteLinkType) => boolean,
-  +onPage?: (scrapeConfiguration: ScrapeConfigurationType, page: PuppeteerPageType) => MaybePromiseType<void>,
-  +onResult?: (scrapeResult: ScrapeResultType) => MaybePromiseType<boolean>
+  +onPage?: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => MaybePromiseType<void>,
+  +onResult?: (result: ScrapeResultType) => MaybePromiseType<boolean>
 |};
 
 ```
@@ -139,7 +139,7 @@ Request parameters (such as geolocation, user-agent and viewport) can be configu
 const main = async () => {
   const browser = await puppeteer.launch();
 
-  const onPage = async (scrapeConfiguration, page) => {
+  const onPage = async (page, scrapeConfiguration) => {
     await page.setGeolocation({
       latitude: 59.95,
       longitude: 30.31667
