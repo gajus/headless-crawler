@@ -103,12 +103,9 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
   };
 
   const crawl = async (crawlConfiguration: CrawlConfigurationType) => {
-    const linkQueue = [];
     const scrapedLinkHistory = [];
 
-    let nextUrl = crawlConfiguration.startUrl;
-
-    while (true) {
+    const run = async (nextUrl: string, linkDepth: number) => {
       const resource = await scrape({
         url: nextUrl
       });
@@ -116,13 +113,16 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
       const shouldAdvance = await headlessCrawlerConfiguration.onResult(resource);
 
       if (!shouldAdvance) {
-        break;
+        return;
       }
 
       log.debug('discovered %d new links', resource.links.length);
 
+      const linkQueue = [];
+
       for (const link of resource.links) {
         const queueLink = {
+          linkDepth,
           linkUrl: link,
           originUrl: nextUrl
         };
@@ -134,16 +134,12 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
 
       log.debug('link queue size %d', linkQueue.length);
 
-      if (linkQueue.length) {
-        const nextLink = linkQueue.shift();
-
-        scrapedLinkHistory.push(nextLink);
-
-        nextUrl = nextLink.linkUrl;
-      } else {
-        break;
+      for (const link of linkQueue) {
+        await run(link.linkUrl, linkDepth + 1);
       }
-    }
+    };
+
+    await run(crawlConfiguration.startUrl, 1);
   };
 
   return {

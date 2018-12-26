@@ -9,6 +9,7 @@ export type PuppeteerBrowserType = any;
 export type PuppeteerPageType = any;
 
 type SiteLinkType = {|
+  +linkDepth: number,
   +linkUrl: string,
   +originUrl: string
 |};

@@ -109,6 +109,57 @@ export default (): Promise<HttpServerType> => {
     `);
   });
 
+  app.get('/crawl/deep-links', (req, res) => {
+    res.send(`
+      <html>
+        <head>
+          <title>deep-links</title>
+        </head>
+        <body>
+          <a href='/crawl/deep-links/a'>a</a>
+        </body>
+      </html>
+    `);
+  });
+
+  app.get('/crawl/deep-links/a', (req, res) => {
+    res.send(`
+      <html>
+        <head>
+          <title>deep-links</title>
+        </head>
+        <body>
+          <a href='/crawl/deep-links/b'>b</a>
+        </body>
+      </html>
+    `);
+  });
+
+  app.get('/crawl/deep-links/b', (req, res) => {
+    res.send(`
+      <html>
+        <head>
+          <title>deep-links</title>
+        </head>
+        <body>
+          <a href='/crawl/deep-links/c'>c</a>
+        </body>
+      </html>
+    `);
+  });
+
+  app.get('/crawl/deep-links/c', (req, res) => {
+    res.send(`
+      <html>
+        <head>
+          <title>deep-links</title>
+        </head>
+        <body>
+        </body>
+      </html>
+    `);
+  });
+
   return new Promise((resolve, reject) => {
     const server = app.listen((error) => {
       if (error) {

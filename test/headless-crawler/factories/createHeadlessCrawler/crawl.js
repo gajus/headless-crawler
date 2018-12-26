@@ -47,18 +47,57 @@ test('uses `filterLink` to evaluate which URLs to scrape', async (t) => {
   t.true(filterLink.callCount === 3);
 
   t.deepEqual(filterLink.args[0][0], {
+    linkDepth: 1,
     linkUrl: serverAddress + '/crawl/single-page-with-links/a',
     originUrl: serverAddress + '/crawl/single-page-with-links'
   });
 
   t.deepEqual(filterLink.args[1][0], {
+    linkDepth: 1,
     linkUrl: serverAddress + '/crawl/single-page-with-links/b',
     originUrl: serverAddress + '/crawl/single-page-with-links'
   });
 
   t.deepEqual(filterLink.args[2][0], {
+    linkDepth: 1,
     linkUrl: serverAddress + '/crawl/single-page-with-links/c',
     originUrl: serverAddress + '/crawl/single-page-with-links'
+  });
+});
+
+test('`filterLink` tracks link depth', async (t) => {
+  const browser = await createBrowser();
+
+  const filterLink = stub().returns(true);
+
+  const headlessCrawler = createHeadlessCrawler({
+    browser,
+    extractContent: extractContentConstantNull,
+    filterLink
+  });
+
+  await headlessCrawler.crawl({
+    startUrl: serverAddress + '/crawl/deep-links'
+  });
+
+  t.true(filterLink.callCount === 3);
+
+  t.deepEqual(filterLink.args[0][0], {
+    linkDepth: 1,
+    linkUrl: serverAddress + '/crawl/deep-links/a',
+    originUrl: serverAddress + '/crawl/deep-links'
+  });
+
+  t.deepEqual(filterLink.args[1][0], {
+    linkDepth: 2,
+    linkUrl: serverAddress + '/crawl/deep-links/b',
+    originUrl: serverAddress + '/crawl/deep-links/a'
+  });
+
+  t.deepEqual(filterLink.args[2][0], {
+    linkDepth: 3,
+    linkUrl: serverAddress + '/crawl/deep-links/c',
+    originUrl: serverAddress + '/crawl/deep-links/b'
   });
 });
 
