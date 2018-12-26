@@ -13,9 +13,10 @@ A crawler implemented using a headless browser (Chrome).
     * [Features](#headless-crawler-features)
     * [Usage](#headless-crawler-usage)
     * [Configuration](#headless-crawler-configuration)
-        * [Default `extractContent`](#headless-crawler-configuration-default-extractcontent)
-        * [Default `filterLink`](#headless-crawler-configuration-default-filterlink)
-        * [Default `onResult`](#headless-crawler-configuration-default-onresult)
+        * [Default `headlessCrawlerConfiguration.extractContent`](#headless-crawler-configuration-default-headlesscrawlerconfiguration-extractcontent)
+        * [Default `headlessCrawlerConfiguration.filterLink`](#headless-crawler-configuration-default-headlesscrawlerconfiguration-filterlink)
+        * [Default `headlessCrawlerConfiguration.onResult`](#headless-crawler-configuration-default-headlesscrawlerconfiguration-onresult)
+        * [Default `headlessCrawlerConfiguration.waitFor`](#headless-crawler-configuration-default-headlesscrawlerconfiguration-waitfor)
     * [Recipes](#headless-crawler-recipes)
         * [Inject jQuery](#headless-crawler-recipes-inject-jquery)
         * [Configure request parameters](#headless-crawler-recipes-configure-request-parameters)
@@ -67,19 +68,21 @@ main();
  * @property filterLink Identifies which URLs to follow.
  * @property onPage Invoked when [Puppeteer Page](https://pptr.dev/#?product=Puppeteer&version=v1.11.0&show=api-class-page) instance is instantiated.
  * @property onResult Invoked after content is extracted from a new page. Must return a boolean value indicating whether the crawler should advance to the next URL.
+ * @property waitFor Invoked before links are aggregated from the website and before `extractContent`. Note: Must return an unresolved promise.
  */
 type HeadlessCrawlerConfigurationType = {|
   +browser: PuppeteerBrowserType,
   +extractContent?: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => MaybePromiseType<string>,
   +filterLink?: (link: SiteLinkType) => boolean,
   +onPage?: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => MaybePromiseType<void>,
-  +onResult?: (result: ScrapeResultType) => MaybePromiseType<boolean>
+  +onResult?: (result: ScrapeResultType) => MaybePromiseType<boolean>,
+  +waitFor?: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => Promise<void>
 |};
 
 ```
 
-<a name="headless-crawler-configuration-default-extractcontent"></a>
-### Default <code>extractContent</code>
+<a name="headless-crawler-configuration-default-headlesscrawlerconfiguration-extractcontent"></a>
+### Default <code>headlessCrawlerConfiguration.extractContent</code>
 
 The default `extractContent` function extracts page title.
 
@@ -94,8 +97,8 @@ The default `extractContent` function extracts page title.
 
 ```
 
-<a name="headless-crawler-configuration-default-filterlink"></a>
-### Default <code>filterLink</code>
+<a name="headless-crawler-configuration-default-headlesscrawlerconfiguration-filterlink"></a>
+### Default <code>headlessCrawlerConfiguration.filterLink</code>
 
 The default `filterLink` function includes all URLs and does not visit previously scraped URLs.
 
@@ -112,8 +115,8 @@ The default `filterLink` function includes all URLs and does not visit previousl
 
 ```
 
-<a name="headless-crawler-configuration-default-onresult"></a>
-### Default <code>onResult</code>
+<a name="headless-crawler-configuration-default-headlesscrawlerconfiguration-onresult"></a>
+### Default <code>headlessCrawlerConfiguration.onResult</code>
 
 The default `onResult` logs the result and advances crawler to the next URL.
 
@@ -124,6 +127,18 @@ The default `onResult` logs the result and advances crawler to the next URL.
   }, 'new result');
 
   return true;
+};
+
+```
+
+<a name="headless-crawler-configuration-default-headlesscrawlerconfiguration-waitfor"></a>
+### Default <code>headlessCrawlerConfiguration.waitFor</code>
+
+```js
+(page) => {
+  return page.waitForNavigation({
+    waitUntil: 'networkidle2'
+  });
 };
 
 ```
