@@ -50,7 +50,7 @@ type HeadlessCrawlerConfigurationType = {|
   +browser: PuppeteerBrowserType,
   +extractContent?: string,
   +filterLink?: (link: SiteLinkType) => boolean,
-  +onResult?: (result: ScrapeResultType) => void
+  +onResult?: (scrapeResult: ScrapeResultType, scrapeNext: () => void) => void
 |};
 
 ```
@@ -86,6 +86,22 @@ The default `filterLink` function includes all URLs and does not visit previousl
 };
 
 ```
+
+<a name="headless-crawler-configuration-default-onresult"></a>
+### Default <code>onResult</code>
+
+The default `onResult` throws away the result and advances crawler to the next URL.
+
+```js
+()
+```
+
+<a name="headless-crawler-types"></a>
+## Types
+
+This package is using [Flow](https://flow.org/) type annotations.
+
+Refer to [`./src/types.js`](./src/types.js) for method parameter and result types.
 
 <a name="headless-crawler-logging"></a>
 ## Logging
