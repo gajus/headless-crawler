@@ -39,13 +39,15 @@ type MaybePromiseType<R> = R | Promise<R>;
  * @property filterLink Identifies which URLs to follow.
  * @property onPage Invoked when [Puppeteer Page](https://pptr.dev/#?product=Puppeteer&version=v1.11.0&show=api-class-page) instance is instantiated.
  * @property onResult Invoked after content is extracted from a new page. Must return a boolean value indicating whether the crawler should advance to the next URL.
+ * @property waitFor Invoked before links are aggregated from the website and before `extractContent`.
  */
 type HeadlessCrawlerUserConfigurationType = {|
   +browser: PuppeteerBrowserType,
   +extractContent?: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => MaybePromiseType<string>,
   +filterLink?: (link: SiteLinkType) => boolean,
   +onPage?: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => MaybePromiseType<void>,
-  +onResult?: (result: ScrapeResultType) => MaybePromiseType<boolean>
+  +onResult?: (result: ScrapeResultType) => MaybePromiseType<boolean>,
+  +waitFor?: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => Promise<void>
 |};
 
 type HeadlessCrawlerConfigurationType = {|
@@ -53,7 +55,8 @@ type HeadlessCrawlerConfigurationType = {|
   +extractContent: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => MaybePromiseType<string>,
   +filterLink: (link: SiteLinkType, scrapedLinkHistory: $ReadOnlyArray<SiteLinkType>) => boolean,
   +onPage?: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => MaybePromiseType<void>,
-  +onResult: (result: ScrapeResultType) => MaybePromiseType<boolean>
+  +onResult: (result: ScrapeResultType) => MaybePromiseType<boolean>,
+  +waitFor: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => Promise<void>
 |};
 
 export type CreateHeadlessCrawlerType = (headlessCrawlerUserConfiguration: HeadlessCrawlerUserConfigurationType) => {|

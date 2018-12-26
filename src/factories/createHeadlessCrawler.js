@@ -42,13 +42,20 @@ const defaultResultHandler = (scrapeResult) => {
   return true;
 };
 
+const defaultWaitFor = (page) => {
+  return page.waitForNavigation({
+    waitUntil: 'networkidle2'
+  });
+};
+
 const createHeadlessCrawlerConfiguration: CreateHeadlessCrawlerConfigurationType = (headlessCrawlerUserConfiguration) => {
   return {
     browser: headlessCrawlerUserConfiguration.browser,
     extractContent: headlessCrawlerUserConfiguration.extractContent || defaultExtractContent,
     filterLink: headlessCrawlerUserConfiguration.filterLink || defaultFilterLink,
     onPage: headlessCrawlerUserConfiguration.onPage,
-    onResult: headlessCrawlerUserConfiguration.onResult || defaultResultHandler
+    onResult: headlessCrawlerUserConfiguration.onResult || defaultResultHandler,
+    waitFor: headlessCrawlerUserConfiguration.waitFor || defaultWaitFor
   };
 };
 
@@ -72,7 +79,11 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
       await headlessCrawlerConfiguration.onPage(page, scrapeConfiguration);
     }
 
+    const waitPromise = headlessCrawlerConfiguration.waitFor(page, scrapeConfiguration);
+
     await page.goto(scrapeConfiguration.url);
+
+    await waitPromise;
 
     const links = await extractLinks(page);
 
