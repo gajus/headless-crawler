@@ -16,11 +16,13 @@ const log = Logger.child({
   namespace: 'createHeadlessCrawler'
 });
 
-const defaultExtractContent = `(() => {
-  return {
-    title: document.title
-  };
-})()`;
+const defaultExtractContent = () => {
+  return `(() => {
+    return {
+      title: document.title
+    };
+  })()`;
+};
 
 const defaultFilterLink = (link, scrapedLinkHistory) => {
   for (const scrapedLink of scrapedLinkHistory) {
@@ -78,7 +80,7 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
       links
     }, 'found links');
 
-    const content = await page.evaluate(headlessCrawlerConfiguration.extractContent);
+    const content = await page.evaluate(await headlessCrawlerConfiguration.extractContent(page));
 
     await page.close();
 

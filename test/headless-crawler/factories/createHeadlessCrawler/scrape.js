@@ -20,14 +20,18 @@ after(() => {
   httpServer.close();
 });
 
-const extractContentConstantNull = '(() => { return null; })()';
+const extractContentConstantNull = () => {
+  return '(() => { return null; })()';
+};
 
 test('evaluates `extractContent` to extract content from the resulint page', async (t) => {
   const browser = await createBrowser();
 
   const headlessCrawler = createHeadlessCrawler({
     browser,
-    extractContent: '(() => { return 1; })()'
+    extractContent: () => {
+      return '(() => { return 1; })()';
+    }
   });
 
   const result = await headlessCrawler.scrape({

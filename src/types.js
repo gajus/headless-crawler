@@ -42,7 +42,7 @@ type MaybePromiseType<R> = R | Promise<R>;
  */
 type HeadlessCrawlerUserConfigurationType = {|
   +browser: PuppeteerBrowserType,
-  +extractContent?: string,
+  +extractContent?: (scrapeConfiguration: ScrapeConfigurationType, page: PuppeteerPageType) => MaybePromiseType<string>,
   +filterLink?: (link: SiteLinkType) => boolean,
   +onPage?: (scrapeConfiguration: ScrapeConfigurationType, page: PuppeteerPageType) => MaybePromiseType<void>,
   +onResult?: (result: ScrapeResultType) => MaybePromiseType<boolean>
@@ -50,7 +50,7 @@ type HeadlessCrawlerUserConfigurationType = {|
 
 type HeadlessCrawlerConfigurationType = {|
   +browser: PuppeteerBrowserType,
-  +extractContent: string,
+  +extractContent: (scrapeConfiguration: ScrapeConfigurationType, page: PuppeteerPageType) => MaybePromiseType<string>,
   +filterLink: (link: SiteLinkType, scrapedLinkHistory: $ReadOnlyArray<SiteLinkType>) => boolean,
   +onPage?: (scrapeConfiguration: ScrapeConfigurationType, page: PuppeteerPageType) => MaybePromiseType<void>,
   +onResult: (result: ScrapeResultType) => MaybePromiseType<boolean>

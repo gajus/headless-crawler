@@ -23,7 +23,11 @@ after(() => {
   httpServer.close();
 });
 
-const extractContentConstantNull = '(() => { return null; })()';
+const extractContentConstantNull = () => {
+  return `(() => {
+    return null;
+  })()`;
+};
 
 test('uses `filterLink` to evaluate which URLs to scrape', async (t) => {
   const browser = await createBrowser();
