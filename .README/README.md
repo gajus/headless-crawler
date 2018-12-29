@@ -218,6 +218,25 @@ main();
 
 ```
 
+### Capture a screenshots
+
+The `extractContent` method can capture the screenshot of the website as it was at the time just before the content-extraction function is executed, e.g.
+
+```js
+const extractContent = async (page) => {
+  await page.screenshot({
+    path: 'screenshot.png'
+  });
+
+  return `(() => {
+    return {
+      title: document.title
+    };
+  })()`;
+};
+
+```
+
 ## Types
 
 This package is using [Flow](https://flow.org/) type annotations.
