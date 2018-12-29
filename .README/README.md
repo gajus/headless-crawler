@@ -225,6 +225,7 @@ The `extractContent` method can capture the screenshot of the website as it was 
 ```js
 const extractContent = async (page) => {
   await page.screenshot({
+    fullPage: true,
     path: 'screenshot.png'
   });
 
@@ -236,6 +237,8 @@ const extractContent = async (page) => {
 };
 
 ```
+
+Refer to Puppeteer [`page#screenshot`](https://pptr.dev/#?product=Puppeteer&version=v1.11.0&show=api-pagescreenshotoptions) documentation for other properties.
 
 ## Types
 
