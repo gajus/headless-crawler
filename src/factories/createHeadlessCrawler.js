@@ -80,6 +80,7 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
 
       for (const link of resource.links) {
         const queueLink = {
+          lastAttemptedAt: null,
           linkDepth: path.length,
           linkUrl: link,
           originUrl: nextUrl,
@@ -95,13 +96,17 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
 
       for (const link of linkQueue) {
         await run(link.linkUrl, path.concat([
-          link
+          {
+            ...link,
+            lastAttemptedAt: Date.now()
+          }
         ]));
       }
     };
 
     await run(crawlConfiguration.startUrl, [
       {
+        lastAttemptedAt: Date.now(),
         linkDepth: 0,
         linkUrl: crawlConfiguration.startUrl,
         originUrl: null,
