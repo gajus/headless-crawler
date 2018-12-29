@@ -7,11 +7,35 @@ import type {
   FilterLinkHandlerType
 } from '../types';
 
-export default (): FilterLinkHandlerType => {
-  const robotsAgent = createRobotsAgent();
+type DefaultFilterLinkHandlerConfigurationType = {|
+  +maxLinkDepth: number,
+  +respectRobots: boolean
+|};
+
+type DefaultFilterLinkHandlerUserConfigurationType = {|
+  +maxLinkDepth?: number,
+  +respectRobots?: boolean
+|};
+
+export default (userConfiguration?: DefaultFilterLinkHandlerUserConfigurationType): FilterLinkHandlerType => {
+  const configuration: DefaultFilterLinkHandlerConfigurationType = {
+    maxLinkDepth: 10,
+    respectRobots: true,
+    ...userConfiguration
+  };
+
+  let robotsAgent;
+
+  if (configuration.respectRobots) {
+    robotsAgent = createRobotsAgent();
+  }
 
   return async (link, scrapedLinkHistory) => {
-    if (robotsAgent.isRobotsAvailable(link.linkUrl) && !robotsAgent.isAllowed(link.linkUrl)) {
+    if (link.linkDepth > configuration.maxLinkDepth) {
+      return false;
+    }
+
+    if (configuration.respectRobots && robotsAgent.isRobotsAvailable(link.linkUrl) && !robotsAgent.isAllowed(link.linkUrl)) {
       return false;
     }
 
