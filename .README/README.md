@@ -218,7 +218,7 @@ main();
 
 ```
 
-### Capture a screenshots
+### Capture a screenshot
 
 The `extractContent` method can capture the screenshot of the website as it was at the time just before the content-extraction function is executed, e.g.
 
@@ -297,8 +297,8 @@ Use [`roarr-cli`](https://github.com/gajus/roarr-cli) program to pretty-print th
 
 ### What makes `headless-crawler` different from `headless-chrome-crawler`?
 
-[`headless-chrome-crawler`](https://github.com/yujiosaka/headless-chrome-crawler) is the only other maintained headless crawler in the Node.js ecosystem.
+[`headless-chrome-crawler`](https://github.com/yujiosaka/headless-chrome-crawler) is the only other headless crawler in the Node.js ecosystem.
 
 It appears that `headless-chrome-crawler` is no longer maintained. At the time of this writing, the author of `headless-chrome-crawler` has not made public contributions in over 6 months and the package includes bugs as a result of [hardcoded dependency versions](https://github.com/yujiosaka/headless-chrome-crawler/blob/ad95c2c4b356c8fdc60d16f8b013cc9a043a9bc6/package.json#L28-L34).
 
-`headless-crawler` implements core features of `headless-chrome-crawler`.
+Maintenance issues aside, the `headless-chrome-crawler` is a feature-rich and configuration-driven framework. Meanwhile, `headless-crawler` provides a bare-bones framework for navigating the website and extracting the content. The consumer of the framework can extend the functionality using the provided handlers and directly consuming the Puppeteer API (e.g. see [Capture a screenshot](#headless-crawler-recipes-capture-a-screenshots)).
