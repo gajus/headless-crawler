@@ -11,51 +11,23 @@ import type {
   ScrapeConfigurationType
 } from '../types';
 import Logger from '../Logger';
+import createDefaultExtractContentHandler from './createDefaultExtractContentHandler';
+import createDefaultFilterLinkHandler from './createDefaultFilterLinkHandler';
+import createDefaultResultHandler from './createDefaultResultHandler';
+import createDefaultWaitForHandler from './createDefaultWaitForHandler';
 
 const log = Logger.child({
   namespace: 'createHeadlessCrawler'
 });
 
-const defaultExtractContent = () => {
-  return `(() => {
-    return {
-      title: document.title
-    };
-  })()`;
-};
-
-const defaultFilterLink = (link, scrapedLinkHistory) => {
-  for (const scrapedLink of scrapedLinkHistory) {
-    if (scrapedLink.linkUrl === link.linkUrl) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
-const defaultResultHandler = (scrapeResult) => {
-  log.debug({
-    scrapeResult
-  }, 'new result');
-
-  return true;
-};
-
-const defaultWaitFor = (page) => {
-  return page.waitForNavigation({
-    waitUntil: 'networkidle2'
-  });
-};
-
 const createHeadlessCrawlerConfiguration: CreateHeadlessCrawlerConfigurationType = (headlessCrawlerUserConfiguration) => {
   return {
     browser: headlessCrawlerUserConfiguration.browser,
-    extractContent: headlessCrawlerUserConfiguration.extractContent || defaultExtractContent,
-    filterLink: headlessCrawlerUserConfiguration.filterLink || defaultFilterLink,
+    extractContent: headlessCrawlerUserConfiguration.extractContent || createDefaultExtractContentHandler(),
+    filterLink: headlessCrawlerUserConfiguration.filterLink || createDefaultFilterLinkHandler(),
     onPage: headlessCrawlerUserConfiguration.onPage,
-    onResult: headlessCrawlerUserConfiguration.onResult || defaultResultHandler,
-    waitFor: headlessCrawlerUserConfiguration.waitFor || defaultWaitFor
+    onResult: headlessCrawlerUserConfiguration.onResult || createDefaultResultHandler(),
+    waitFor: headlessCrawlerUserConfiguration.waitFor || createDefaultWaitForHandler()
   };
 };
 
@@ -128,7 +100,7 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
           path
         };
 
-        if (headlessCrawlerConfiguration.filterLink(queueLink, scrapedLinkHistory)) {
+        if (await headlessCrawlerConfiguration.filterLink(queueLink, scrapedLinkHistory)) {
           linkQueue.push(queueLink);
         }
       }

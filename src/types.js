@@ -35,6 +35,12 @@ export type CrawlConfigurationType = {|
 
 type MaybePromiseType<R> = R | Promise<R>;
 
+export type ExtractContentHandlerType = (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => MaybePromiseType<string>;
+export type FilterLinkHandlerType = (link: SiteLinkType, scrapedLinkHistory: $ReadOnlyArray<SiteLinkType>) => MaybePromiseType<boolean>;
+export type PageHandlerType = (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => MaybePromiseType<void>;
+export type ResultHandlerType = (result: ScrapeResultType) => MaybePromiseType<boolean>;
+export type WaitForHandlerType = (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => Promise<void>;
+
 /**
  * @property browser Instance of [Puppeteer Browser](https://pptr.dev/#?product=Puppeteer&version=v1.11.0&show=api-class-browser).
  * @property extractContent A function [evaluted](https://pptr.dev/#?product=Puppeteer&version=v1.11.0&show=api-pageevaluatepagefunction-args) in the context of the browser. The result of the function is used to describe the contents of the website (see `ScrapeResultType#content` property).
@@ -45,20 +51,20 @@ type MaybePromiseType<R> = R | Promise<R>;
  */
 type HeadlessCrawlerUserConfigurationType = {|
   +browser: PuppeteerBrowserType,
-  +extractContent?: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => MaybePromiseType<string>,
-  +filterLink?: (link: SiteLinkType) => boolean,
-  +onPage?: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => MaybePromiseType<void>,
-  +onResult?: (result: ScrapeResultType) => MaybePromiseType<boolean>,
-  +waitFor?: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => Promise<void>
+  +extractContent?: ExtractContentHandlerType,
+  +filterLink?: FilterLinkHandlerType,
+  +onPage?: PageHandlerType,
+  +onResult?: ResultHandlerType,
+  +waitFor?: WaitForHandlerType
 |};
 
 type HeadlessCrawlerConfigurationType = {|
   +browser: PuppeteerBrowserType,
-  +extractContent: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => MaybePromiseType<string>,
-  +filterLink: (link: SiteLinkType, scrapedLinkHistory: $ReadOnlyArray<SiteLinkType>) => boolean,
-  +onPage?: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => MaybePromiseType<void>,
-  +onResult: (result: ScrapeResultType) => MaybePromiseType<boolean>,
-  +waitFor: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => Promise<void>
+  +extractContent: ExtractContentHandlerType,
+  +filterLink: FilterLinkHandlerType,
+  +onPage?: PageHandlerType,
+  +onResult: ResultHandlerType,
+  +waitFor: WaitForHandlerType
 |};
 
 export type CreateHeadlessCrawlerType = (headlessCrawlerUserConfiguration: HeadlessCrawlerUserConfigurationType) => {|

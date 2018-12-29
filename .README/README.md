@@ -51,13 +51,13 @@ main();
  * @property onResult Invoked after content is extracted from a new page. Must return a boolean value indicating whether the crawler should advance to the next URL.
  * @property waitFor Invoked before links are aggregated from the website and before `extractContent`.
  */
-type HeadlessCrawlerConfigurationType = {|
+type HeadlessCrawlerUserConfigurationType = {|
   +browser: PuppeteerBrowserType,
-  +extractContent?: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => MaybePromiseType<string>,
-  +filterLink?: (link: SiteLinkType) => boolean,
-  +onPage?: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => MaybePromiseType<void>,
-  +onResult?: (result: ScrapeResultType) => MaybePromiseType<boolean>,
-  +waitFor?: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => Promise<void>
+  +extractContent?: ExtractContentHandlerType,
+  +filterLink?: FilterLinkHandlerType,
+  +onPage?: PageHandlerType,
+  +onResult?: ResultHandlerType,
+  +waitFor?: WaitForHandlerType
 |};
 
 ```
@@ -67,7 +67,7 @@ type HeadlessCrawlerConfigurationType = {|
 The default `extractContent` function extracts page title.
 
 ```js
-() => {
+(): ExtractContentHandlerType => {
   return `(() => {
     return {
       title: document.title
@@ -79,17 +79,25 @@ The default `extractContent` function extracts page title.
 
 ### Default `headlessCrawlerConfiguration.filterLink`
 
-The default `filterLink` function includes all URLs and does not visit previously scraped URLs.
+The default `filterLink` function includes all URLs allowed by robots.txt and does not visit previously scraped URLs.
 
 ```js
-(link, scrapedLinkHistory) => {
-  for (const scrapedLink of scrapedLinkHistory) {
-    if (scrapedLink.linkUrl === link.linkUrl) {
+(): FilterLinkHandlerType => {
+  const robotsAgent = createRobotsAgent();
+
+  return async (link, scrapedLinkHistory) => {
+    if (robotsAgent.isRobotsAvailable(link.linkUrl) && !robotsAgent.isAllowed(link.linkUrl)) {
       return false;
     }
-  }
 
-  return true;
+    for (const scrapedLink of scrapedLinkHistory) {
+      if (scrapedLink.linkUrl === link.linkUrl) {
+        return false;
+      }
+    }
+
+    return true;
+  };
 };
 
 ```
@@ -99,12 +107,14 @@ The default `filterLink` function includes all URLs and does not visit previousl
 The default `onResult` logs the result and advances crawler to the next URL.
 
 ```js
-(scrapeResult) => {
-  log.debug({
-    scrapeResult
-  }, 'new result');
+(): ResultHandlerType => {
+  return (scrapeResult) => {
+    log.debug({
+      scrapeResult
+    }, 'new result');
 
-  return true;
+    return true;
+  };
 };
 
 ```
@@ -112,10 +122,41 @@ The default `onResult` logs the result and advances crawler to the next URL.
 ### Default `headlessCrawlerConfiguration.waitFor`
 
 ```js
-(page) => {
-  return page.waitForNavigation({
-    waitUntil: 'networkidle2'
-  });
+(): WaitForHandlerType => {
+  return (page) => {
+    return page.waitForNavigation({
+      waitUntil: 'networkidle2'
+    });
+  };
+};
+
+```
+
+## Create default handlers
+
+You can import factory functions to create default handlers:
+
+```js
+import {
+  createDefaultExtractContentHandler,
+  createDefaultFilterLinkHandler,
+  createDefaultResultHandler,
+  createDefaultWaitForHandler
+} from 'headless-crawler';
+
+```
+
+This is useful for extending the default handlers, e.g.
+
+```js
+const defaultFilterHandler = createDefaultFilterLinkHandler();
+
+const myCustomFilterLinkHandler = (link, scrapedLinkHistory) => {
+  if (link.linkUrl.startsWith('https://google.com/')) {
+    return false;
+  }
+
+  return defaultFilterHandler(link, scrapedLinkHistory);
 };
 
 ```
