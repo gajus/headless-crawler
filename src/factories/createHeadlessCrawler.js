@@ -5,31 +5,16 @@ import {
 } from 'lodash';
 import type {
   CrawlConfigurationType,
-  CreateHeadlessCrawlerConfigurationType,
   CreateHeadlessCrawlerType,
   PuppeteerPageType,
   ScrapeConfigurationType
 } from '../types';
 import Logger from '../Logger';
-import createDefaultExtractContentHandler from './createDefaultExtractContentHandler';
-import createDefaultFilterLinkHandler from './createDefaultFilterLinkHandler';
-import createDefaultResultHandler from './createDefaultResultHandler';
-import createDefaultWaitForHandler from './createDefaultWaitForHandler';
+import createHeadlessCrawlerConfiguration from './createHeadlessCrawlerConfiguration';
 
 const log = Logger.child({
   namespace: 'createHeadlessCrawler'
 });
-
-const createHeadlessCrawlerConfiguration: CreateHeadlessCrawlerConfigurationType = (headlessCrawlerUserConfiguration) => {
-  return {
-    browser: headlessCrawlerUserConfiguration.browser,
-    extractContent: headlessCrawlerUserConfiguration.extractContent || createDefaultExtractContentHandler(),
-    filterLink: headlessCrawlerUserConfiguration.filterLink || createDefaultFilterLinkHandler(),
-    onPage: headlessCrawlerUserConfiguration.onPage,
-    onResult: headlessCrawlerUserConfiguration.onResult || createDefaultResultHandler(),
-    waitFor: headlessCrawlerUserConfiguration.waitFor || createDefaultWaitForHandler()
-  };
-};
 
 const extractLinks = (page: PuppeteerPageType): $ReadOnlyArray<string> => {
   return page.evaluate(new Function(`
