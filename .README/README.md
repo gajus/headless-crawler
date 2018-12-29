@@ -13,6 +13,7 @@ A crawler implemented using a headless browser (Chrome).
 ## Features
 
 * Scrapes websites using user-provided `extractContent` function and follows the observed URLs as instructed by `filterLink` and `onResult`.
+* Respects [robots.txt](https://en.wikipedia.org/wiki/Robots_exclusion_standard) (configurable) (see [Default `headlessCrawlerConfiguration.filterLink`](#headless-crawler-configuration-default-headlesscrawlerconfiguration-filterlink)).
 
 ## Usage
 
@@ -101,6 +102,8 @@ The default `filterLink` function includes all URLs allowed by robots.txt and do
 };
 
 ```
+
+Note: robots.txt support is implemented using [`robots-agent`](https://github.com/gajus/robots-agent).
 
 ### Default `headlessCrawlerConfiguration.onResult`
 

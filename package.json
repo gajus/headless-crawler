@@ -23,6 +23,7 @@
     "pretty-hrtime": "^1.0.3",
     "puppeteer": "^1.11.0",
     "roarr": "^2.12.0",
+    "robots-agent": "^1.0.0",
     "serialize-error": "^3.0.0",
     "ulid": "^2.3.0"
   },
