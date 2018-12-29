@@ -42,6 +42,24 @@ const overrideLastAttemptedAt = (path) => {
   });
 };
 
+const omitPath = (path) => {
+  return deepMap(path, (key, value) => {
+    if (key === 'path') {
+      return [
+        key,
+        null
+      ];
+    }
+
+    return [
+      key,
+      value
+    ];
+  }, {
+    deep: true
+  });
+};
+
 const extractContentConstantNull = () => {
   return `(() => {
     return null;
@@ -242,6 +260,77 @@ test('`filterLink` tracks link depth', async (t) => {
       }
     ]
   });
+});
+
+test('`filterLink` tracks visited URLs', async (t) => {
+  const browser = await createBrowser();
+
+  const filterLink = stub().returns(true);
+
+  const headlessCrawler = createHeadlessCrawler({
+    browser,
+    extractContent: extractContentConstantNull,
+    filterLink
+  });
+
+  await headlessCrawler.crawl({
+    startUrl: serverAddress + '/crawl/deep-links'
+  });
+
+  t.true(filterLink.callCount === 3);
+
+  const args = omitPath(overrideLastAttemptedAt(filterLink.args));
+
+  t.deepEqual(args[0][1], [
+    {
+      lastAttemptedAt: '[OVERRIDDEN]',
+      linkDepth: 0,
+      linkUrl: serverAddress + '/crawl/deep-links',
+      originUrl: null,
+      path: null
+    }
+  ]);
+
+  t.deepEqual(args[1][1], [
+    {
+      lastAttemptedAt: '[OVERRIDDEN]',
+      linkDepth: 0,
+      linkUrl: serverAddress + '/crawl/deep-links',
+      originUrl: null,
+      path: null
+    },
+    {
+      lastAttemptedAt: '[OVERRIDDEN]',
+      linkDepth: 1,
+      linkUrl: serverAddress + '/crawl/deep-links/a',
+      originUrl: serverAddress + '/crawl/deep-links',
+      path: null
+    }
+  ]);
+
+  t.deepEqual(args[2][1], [
+    {
+      lastAttemptedAt: '[OVERRIDDEN]',
+      linkDepth: 0,
+      linkUrl: serverAddress + '/crawl/deep-links',
+      originUrl: null,
+      path: null
+    },
+    {
+      lastAttemptedAt: '[OVERRIDDEN]',
+      linkDepth: 1,
+      linkUrl: serverAddress + '/crawl/deep-links/a',
+      originUrl: serverAddress + '/crawl/deep-links',
+      path: null
+    },
+    {
+      lastAttemptedAt: '[OVERRIDDEN]',
+      linkDepth: 2,
+      linkUrl: serverAddress + '/crawl/deep-links/b',
+      originUrl: serverAddress + '/crawl/deep-links/a',
+      path: null
+    }
+  ]);
 });
 
 test('scrapes descendent links', async (t) => {

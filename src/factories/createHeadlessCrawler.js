@@ -61,9 +61,11 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
   };
 
   const crawl = async (crawlConfiguration: CrawlConfigurationType) => {
-    const scrapedLinkHistory = [];
+    let scrapedLinkHistory = [];
 
     const run = async (nextUrl: string, path: $ReadOnlyArray<SiteLinkType>) => {
+      scrapedLinkHistory = scrapedLinkHistory.concat([path[path.length - 1]]);
+
       const resource = await scrape({
         url: nextUrl
       });
@@ -79,7 +81,7 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
       const linkQueue = [];
 
       for (const link of resource.links) {
-        const queueLink = {
+        const queuedLink = {
           lastAttemptedAt: null,
           linkDepth: path.length,
           linkUrl: link,
@@ -87,19 +89,21 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
           path
         };
 
-        if (await headlessCrawlerConfiguration.filterLink(queueLink, scrapedLinkHistory)) {
-          linkQueue.push(queueLink);
+        if (await headlessCrawlerConfiguration.filterLink(queuedLink, scrapedLinkHistory)) {
+          linkQueue.push(queuedLink);
         }
       }
 
       log.debug('link queue size %d', linkQueue.length);
 
       for (const link of linkQueue) {
-        await run(link.linkUrl, path.concat([
-          {
-            ...link,
-            lastAttemptedAt: Date.now()
-          }
+        const queuedLink = {
+          ...link,
+          lastAttemptedAt: Date.now()
+        };
+
+        await run(queuedLink.linkUrl, path.concat([
+          queuedLink
         ]));
       }
     };
