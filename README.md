@@ -22,6 +22,7 @@ A crawler implemented using a headless browser (Chrome).
         * [Inject jQuery](#headless-crawler-recipes-inject-jquery)
         * [Configure request parameters](#headless-crawler-recipes-configure-request-parameters)
         * [Capture a screenshots](#headless-crawler-recipes-capture-a-screenshots)
+        * [Configure a proxy](#headless-crawler-recipes-configure-a-proxy)
     * [Types](#headless-crawler-types)
     * [Logging](#headless-crawler-logging)
     * [FAQ](#headless-crawler-faq)
@@ -269,6 +270,46 @@ const extractContent = async (page) => {
 ```
 
 Refer to Puppeteer [`page#screenshot`](https://pptr.dev/#?product=Puppeteer&version=v1.11.0&show=api-pagescreenshotoptions) documentation for other properties.
+
+<a name="headless-crawler-recipes-configure-a-proxy"></a>
+### Configure a proxy
+
+Note: These instructions are not specific `headless-crawler`; these are generic instructions for instructing Puppeteer to use HTTP proxy.
+
+You must:
+
+1. Configure `ignoreHTTPSErrors`
+2. Configure `--proxy-server`
+
+Example:
+
+```js
+import puppeteer from 'puppeteer';
+import {
+  createHeadlessCrawler
+} from 'headless-crawler';
+
+const main = async () => {
+  const browser = puppeteer.launch({
+    args: [
+      '--proxy-server=http://127.0.0.1:8080'
+    ],
+    ignoreHTTPSErrors: true
+  });
+
+  const headlessCrawler = createHeadlessCrawler({
+    onResult: (resource) => {
+      console.log(resource.content.title);
+    },
+    browser
+  });
+
+  await headlessCrawler.crawl('http://gajus.com/');
+};
+
+main();
+
+```
 
 <a name="headless-crawler-types"></a>
 ## Types
