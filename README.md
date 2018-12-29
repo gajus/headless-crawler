@@ -17,6 +17,7 @@ A crawler implemented using a headless browser (Chrome).
         * [Default `headlessCrawlerConfiguration.filterLink`](#headless-crawler-configuration-default-headlesscrawlerconfiguration-filterlink)
         * [Default `headlessCrawlerConfiguration.onResult`](#headless-crawler-configuration-default-headlesscrawlerconfiguration-onresult)
         * [Default `headlessCrawlerConfiguration.waitFor`](#headless-crawler-configuration-default-headlesscrawlerconfiguration-waitfor)
+    * [Create default handlers](#headless-crawler-create-default-handlers)
     * [Recipes](#headless-crawler-recipes)
         * [Inject jQuery](#headless-crawler-recipes-inject-jquery)
         * [Configure request parameters](#headless-crawler-recipes-configure-request-parameters)
@@ -30,6 +31,7 @@ A crawler implemented using a headless browser (Chrome).
 ## Features
 
 * Scrapes websites using user-provided `extractContent` function and follows the observed URLs as instructed by `filterLink` and `onResult`.
+* Respects [robots.txt](https://en.wikipedia.org/wiki/Robots_exclusion_standard) (configurable).
 
 <a name="headless-crawler-usage"></a>
 ## Usage
@@ -70,13 +72,13 @@ main();
  * @property onResult Invoked after content is extracted from a new page. Must return a boolean value indicating whether the crawler should advance to the next URL.
  * @property waitFor Invoked before links are aggregated from the website and before `extractContent`.
  */
-type HeadlessCrawlerConfigurationType = {|
+type HeadlessCrawlerUserConfigurationType = {|
   +browser: PuppeteerBrowserType,
-  +extractContent?: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => MaybePromiseType<string>,
-  +filterLink?: (link: SiteLinkType) => boolean,
-  +onPage?: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => MaybePromiseType<void>,
-  +onResult?: (result: ScrapeResultType) => MaybePromiseType<boolean>,
-  +waitFor?: (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => Promise<void>
+  +extractContent?: ExtractContentHandlerType,
+  +filterLink?: FilterLinkHandlerType,
+  +onPage?: PageHandlerType,
+  +onResult?: ResultHandlerType,
+  +waitFor?: WaitForHandlerType
 |};
 
 ```
@@ -87,7 +89,7 @@ type HeadlessCrawlerConfigurationType = {|
 The default `extractContent` function extracts page title.
 
 ```js
-() => {
+(): ExtractContentHandlerType => {
   return `(() => {
     return {
       title: document.title
@@ -100,17 +102,25 @@ The default `extractContent` function extracts page title.
 <a name="headless-crawler-configuration-default-headlesscrawlerconfiguration-filterlink"></a>
 ### Default <code>headlessCrawlerConfiguration.filterLink</code>
 
-The default `filterLink` function includes all URLs and does not visit previously scraped URLs.
+The default `filterLink` function includes all URLs allowed by robots.txt and does not visit previously scraped URLs.
 
 ```js
-(link, scrapedLinkHistory) => {
-  for (const scrapedLink of scrapedLinkHistory) {
-    if (scrapedLink.linkUrl === link.linkUrl) {
+(): FilterLinkHandlerType => {
+  const robotsAgent = createRobotsAgent();
+
+  return async (link, scrapedLinkHistory) => {
+    if (robotsAgent.isRobotsAvailable(link.linkUrl) && !robotsAgent.isAllowed(link.linkUrl)) {
       return false;
     }
-  }
 
-  return true;
+    for (const scrapedLink of scrapedLinkHistory) {
+      if (scrapedLink.linkUrl === link.linkUrl) {
+        return false;
+      }
+    }
+
+    return true;
+  };
 };
 
 ```
@@ -121,12 +131,14 @@ The default `filterLink` function includes all URLs and does not visit previousl
 The default `onResult` logs the result and advances crawler to the next URL.
 
 ```js
-(scrapeResult) => {
-  log.debug({
-    scrapeResult
-  }, 'new result');
+(): ResultHandlerType => {
+  return (scrapeResult) => {
+    log.debug({
+      scrapeResult
+    }, 'new result');
 
-  return true;
+    return true;
+  };
 };
 
 ```
@@ -135,10 +147,42 @@ The default `onResult` logs the result and advances crawler to the next URL.
 ### Default <code>headlessCrawlerConfiguration.waitFor</code>
 
 ```js
-(page) => {
-  return page.waitForNavigation({
-    waitUntil: 'networkidle2'
-  });
+(): WaitForHandlerType => {
+  return (page) => {
+    return page.waitForNavigation({
+      waitUntil: 'networkidle2'
+    });
+  };
+};
+
+```
+
+<a name="headless-crawler-create-default-handlers"></a>
+## Create default handlers
+
+You can import factory functions to create default handlers:
+
+```js
+import {
+  createDefaultExtractContentHandler,
+  createDefaultFilterLinkHandler,
+  createDefaultResultHandler,
+  createDefaultWaitForHandler
+} from 'headless-crawler';
+
+```
+
+This is useful for extending the default handlers, e.g.
+
+```js
+const defaultFilterHandler = createDefaultFilterLinkHandler();
+
+const myCustomFilterLinkHandler = (link, scrapedLinkHistory) => {
+  if (link.linkUrl.startsWith('https://google.com/')) {
+    return false;
+  }
+
+  return defaultFilterHandler(link, scrapedLinkHistory);
 };
 
 ```
@@ -226,4 +270,17 @@ Use [`roarr-cli`](https://github.com/gajus/roarr-cli) program to pretty-print th
 
 It appears that `headless-chrome-crawler` is no longer maintained. At the time of this writing, the author of `headless-chrome-crawler` has not made public contributions in over 6 months and the package includes bugs as a result of [hardcoded dependency versions](https://github.com/yujiosaka/headless-chrome-crawler/blob/ad95c2c4b356c8fdc60d16f8b013cc9a043a9bc6/package.json#L28-L34).
 
-`headless-crawler` implements core features of `headless-chrome-crawler`.
+`headless-crawler` implements core features of `headless-chrome-crawler`. However, `headless-chrome-crawler` has several features that `headless-crawler` does not plan to support, e.g.
+
+> * Distributed crawling
+> * Configure concurrency, delay and retry
+> * Support both depth-first search and breadth-first search algorithm
+> * Pluggable cache storages such as Redis
+> * Support CSV and JSON Lines for exporting results
+> * Pause at the max request and resume at any time
+> * Insert jQuery automatically for scraping
+> * Save screenshots for the crawling evidence
+> * Emulate devices and user agents
+> * Priority queue for crawling efficiency
+> * Obey robots.txt
+> * Follow sitemap.xml
