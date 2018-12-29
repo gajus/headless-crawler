@@ -21,6 +21,7 @@ A crawler implemented using a headless browser (Chrome).
     * [Recipes](#headless-crawler-recipes)
         * [Inject jQuery](#headless-crawler-recipes-inject-jquery)
         * [Configure request parameters](#headless-crawler-recipes-configure-request-parameters)
+        * [Capture a screenshots](#headless-crawler-recipes-capture-a-screenshots)
     * [Types](#headless-crawler-types)
     * [Logging](#headless-crawler-logging)
     * [FAQ](#headless-crawler-faq)
@@ -243,6 +244,26 @@ const main = async () => {
 };
 
 main();
+
+```
+
+<a name="headless-crawler-recipes-capture-a-screenshots"></a>
+### Capture a screenshots
+
+The `extractContent` method can capture the screenshot of the website as it was at the time just before the content-extraction function is executed, e.g.
+
+```js
+const extractContent = async (page) => {
+  await page.screenshot({
+    path: 'screenshot.png'
+  });
+
+  return `(() => {
+    return {
+      title: document.title
+    };
+  })()`;
+};
 
 ```
 
