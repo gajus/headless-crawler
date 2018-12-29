@@ -31,7 +31,7 @@ A crawler implemented using a headless browser (Chrome).
 ## Features
 
 * Scrapes websites using user-provided `extractContent` function and follows the observed URLs as instructed by `filterLink` and `onResult`.
-* Respects [robots.txt](https://en.wikipedia.org/wiki/Robots_exclusion_standard) (configurable).
+* Respects [robots.txt](https://en.wikipedia.org/wiki/Robots_exclusion_standard) (configurable) (see [Default `headlessCrawlerConfiguration.filterLink`](#headless-crawler-configuration-default-headlesscrawlerconfiguration-filterlink)).
 
 <a name="headless-crawler-usage"></a>
 ## Usage
@@ -124,6 +124,8 @@ The default `filterLink` function includes all URLs allowed by robots.txt and do
 };
 
 ```
+
+Note: robots.txt support is implemented using [`robots-agent`](https://github.com/gajus/robots-agent).
 
 <a name="headless-crawler-configuration-default-headlesscrawlerconfiguration-onresult"></a>
 ### Default <code>headlessCrawlerConfiguration.onResult</code>
@@ -270,17 +272,4 @@ Use [`roarr-cli`](https://github.com/gajus/roarr-cli) program to pretty-print th
 
 It appears that `headless-chrome-crawler` is no longer maintained. At the time of this writing, the author of `headless-chrome-crawler` has not made public contributions in over 6 months and the package includes bugs as a result of [hardcoded dependency versions](https://github.com/yujiosaka/headless-chrome-crawler/blob/ad95c2c4b356c8fdc60d16f8b013cc9a043a9bc6/package.json#L28-L34).
 
-`headless-crawler` implements core features of `headless-chrome-crawler`. However, `headless-chrome-crawler` has several features that `headless-crawler` does not plan to support, e.g.
-
-> * Distributed crawling
-> * Configure concurrency, delay and retry
-> * Support both depth-first search and breadth-first search algorithm
-> * Pluggable cache storages such as Redis
-> * Support CSV and JSON Lines for exporting results
-> * Pause at the max request and resume at any time
-> * Insert jQuery automatically for scraping
-> * Save screenshots for the crawling evidence
-> * Emulate devices and user agents
-> * Priority queue for crawling efficiency
-> * Obey robots.txt
-> * Follow sitemap.xml
+`headless-crawler` implements core features of `headless-chrome-crawler`.
