@@ -40,6 +40,7 @@ export type ExtractContentHandlerType = (page: PuppeteerPageType, scrapeConfigur
 export type FilterLinkHandlerType = (link: SiteLinkType, scrapedLinkHistory: $ReadOnlyArray<SiteLinkType>) => MaybePromiseType<boolean>;
 export type PageHandlerType = (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => MaybePromiseType<void>;
 export type ResultHandlerType = (result: ScrapeResultType) => MaybePromiseType<boolean>;
+export type SortQueuedLinksHandlerType = (link: $ReadOnlyArray<SiteLinkType>) => $ReadOnlyArray<SiteLinkType>;
 export type WaitForHandlerType = (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => Promise<void>;
 
 /**
@@ -48,6 +49,7 @@ export type WaitForHandlerType = (page: PuppeteerPageType, scrapeConfiguration: 
  * @property filterLink Identifies which URLs to follow.
  * @property onPage Invoked when [Puppeteer Page](https://pptr.dev/#?product=Puppeteer&version=v1.11.0&show=api-class-page) instance is instantiated.
  * @property onResult Invoked after content is extracted from a new page. Must return a boolean value indicating whether the crawler should advance to the next URL.
+ * @property sortQueuedLinks Sorts queued links.
  * @property waitFor Invoked before links are aggregated from the website and before `extractContent`.
  */
 type HeadlessCrawlerUserConfigurationType = {|
@@ -56,6 +58,7 @@ type HeadlessCrawlerUserConfigurationType = {|
   +filterLink?: FilterLinkHandlerType,
   +onPage?: PageHandlerType,
   +onResult?: ResultHandlerType,
+  +sortQueuedLinks?: SortQueuedLinksHandlerType,
   +waitFor?: WaitForHandlerType
 |};
 
@@ -65,6 +68,7 @@ type HeadlessCrawlerConfigurationType = {|
   +filterLink: FilterLinkHandlerType,
   +onPage?: PageHandlerType,
   +onResult: ResultHandlerType,
+  +sortQueuedLinks: SortQueuedLinksHandlerType,
   +waitFor: WaitForHandlerType
 |};
 

@@ -4,6 +4,7 @@ export {
   createDefaultExtractContentHandler,
   createDefaultFilterLinkHandler,
   createDefaultResultHandler,
+  createDefaultSortQueuedLinksHandler,
   createDefaultWaitForHandler,
   createHeadlessCrawler
 } from './factories';
@@ -12,5 +13,6 @@ export type {
   FilterLinkHandlerType,
   PageHandlerType,
   ResultHandlerType,
+  SortQueuedLinksHandlerType,
   WaitForHandlerType
 } from './types';
