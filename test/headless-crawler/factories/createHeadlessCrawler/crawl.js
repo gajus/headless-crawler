@@ -51,7 +51,12 @@ test('uses `filterLink` to evaluate which URLs to scrape', async (t) => {
     linkUrl: serverAddress + '/crawl/single-page-with-links/a',
     originUrl: serverAddress + '/crawl/single-page-with-links',
     path: [
-      serverAddress + '/crawl/single-page-with-links'
+      {
+        linkDepth: 0,
+        linkUrl: serverAddress + '/crawl/single-page-with-links',
+        originUrl: null,
+        path: []
+      }
     ]
   });
 
@@ -60,7 +65,12 @@ test('uses `filterLink` to evaluate which URLs to scrape', async (t) => {
     linkUrl: serverAddress + '/crawl/single-page-with-links/b',
     originUrl: serverAddress + '/crawl/single-page-with-links',
     path: [
-      serverAddress + '/crawl/single-page-with-links'
+      {
+        linkDepth: 0,
+        linkUrl: serverAddress + '/crawl/single-page-with-links',
+        originUrl: null,
+        path: []
+      }
     ]
   });
 
@@ -69,7 +79,12 @@ test('uses `filterLink` to evaluate which URLs to scrape', async (t) => {
     linkUrl: serverAddress + '/crawl/single-page-with-links/c',
     originUrl: serverAddress + '/crawl/single-page-with-links',
     path: [
-      serverAddress + '/crawl/single-page-with-links'
+      {
+        linkDepth: 0,
+        linkUrl: serverAddress + '/crawl/single-page-with-links',
+        originUrl: null,
+        path: []
+      }
     ]
   });
 });
@@ -96,7 +111,12 @@ test('`filterLink` tracks link depth', async (t) => {
     linkUrl: serverAddress + '/crawl/deep-links/a',
     originUrl: serverAddress + '/crawl/deep-links',
     path: [
-      serverAddress + '/crawl/deep-links'
+      {
+        linkDepth: 0,
+        linkUrl: serverAddress + '/crawl/deep-links',
+        originUrl: null,
+        path: []
+      }
     ]
   });
 
@@ -105,8 +125,25 @@ test('`filterLink` tracks link depth', async (t) => {
     linkUrl: serverAddress + '/crawl/deep-links/b',
     originUrl: serverAddress + '/crawl/deep-links/a',
     path: [
-      serverAddress + '/crawl/deep-links',
-      serverAddress + '/crawl/deep-links/a'
+      {
+        linkDepth: 0,
+        linkUrl: serverAddress + '/crawl/deep-links',
+        originUrl: null,
+        path: []
+      },
+      {
+        linkDepth: 1,
+        linkUrl: serverAddress + '/crawl/deep-links/a',
+        originUrl: serverAddress + '/crawl/deep-links',
+        path: [
+          {
+            linkDepth: 0,
+            linkUrl: serverAddress + '/crawl/deep-links',
+            originUrl: null,
+            path: []
+          }
+        ]
+      }
     ]
   });
 
@@ -115,9 +152,51 @@ test('`filterLink` tracks link depth', async (t) => {
     linkUrl: serverAddress + '/crawl/deep-links/c',
     originUrl: serverAddress + '/crawl/deep-links/b',
     path: [
-      serverAddress + '/crawl/deep-links',
-      serverAddress + '/crawl/deep-links/a',
-      serverAddress + '/crawl/deep-links/b'
+      {
+        linkDepth: 0,
+        linkUrl: serverAddress + '/crawl/deep-links',
+        originUrl: null,
+        path: []
+      },
+      {
+        linkDepth: 1,
+        linkUrl: serverAddress + '/crawl/deep-links/a',
+        originUrl: serverAddress + '/crawl/deep-links',
+        path: [
+          {
+            linkDepth: 0,
+            linkUrl: serverAddress + '/crawl/deep-links',
+            originUrl: null,
+            path: []
+          }
+        ]
+      },
+      {
+        linkDepth: 2,
+        linkUrl: serverAddress + '/crawl/deep-links/b',
+        originUrl: serverAddress + '/crawl/deep-links/a',
+        path: [
+          {
+            linkDepth: 0,
+            linkUrl: serverAddress + '/crawl/deep-links',
+            originUrl: null,
+            path: []
+          },
+          {
+            linkDepth: 1,
+            linkUrl: serverAddress + '/crawl/deep-links/a',
+            originUrl: serverAddress + '/crawl/deep-links',
+            path: [
+              {
+                linkDepth: 0,
+                linkUrl: serverAddress + '/crawl/deep-links',
+                originUrl: null,
+                path: []
+              }
+            ]
+          }
+        ]
+      }
     ]
   });
 });

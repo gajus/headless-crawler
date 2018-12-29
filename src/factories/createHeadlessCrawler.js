@@ -7,7 +7,8 @@ import type {
   CrawlConfigurationType,
   CreateHeadlessCrawlerType,
   PuppeteerPageType,
-  ScrapeConfigurationType
+  ScrapeConfigurationType,
+  SiteLinkType
 } from '../types';
 import Logger from '../Logger';
 import createHeadlessCrawlerConfiguration from './createHeadlessCrawlerConfiguration';
@@ -62,7 +63,7 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
   const crawl = async (crawlConfiguration: CrawlConfigurationType) => {
     const scrapedLinkHistory = [];
 
-    const run = async (nextUrl: string, path: $ReadOnlyArray<string>) => {
+    const run = async (nextUrl: string, path: $ReadOnlyArray<SiteLinkType>) => {
       const resource = await scrape({
         url: nextUrl
       });
@@ -93,12 +94,19 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
       log.debug('link queue size %d', linkQueue.length);
 
       for (const link of linkQueue) {
-        await run(link.linkUrl, path.concat([link.linkUrl]));
+        await run(link.linkUrl, path.concat([
+          link
+        ]));
       }
     };
 
     await run(crawlConfiguration.startUrl, [
-      crawlConfiguration.startUrl
+      {
+        linkDepth: 0,
+        linkUrl: crawlConfiguration.startUrl,
+        originUrl: null,
+        path: []
+      }
     ]);
   };
 

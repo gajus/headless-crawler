@@ -8,11 +8,11 @@ export type PuppeteerBrowserType = any;
 // eslint-disable-next-line flowtype/no-weak-types
 export type PuppeteerPageType = any;
 
-type SiteLinkType = {|
+export type SiteLinkType = {|
   +linkDepth: number,
   +linkUrl: string,
-  +originUrl: string,
-  +path: $ReadOnlyArray<string>
+  +originUrl: string | null,
+  +path: $ReadOnlyArray<SiteLinkType>
 |};
 
 // @todo Use Flow generic.
