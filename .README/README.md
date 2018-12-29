@@ -240,6 +240,45 @@ const extractContent = async (page) => {
 
 Refer to Puppeteer [`page#screenshot`](https://pptr.dev/#?product=Puppeteer&version=v1.11.0&show=api-pagescreenshotoptions) documentation for other properties.
 
+### Configure a proxy
+
+Note: These instructions are not specific `headless-crawler`; these are generic instructions for instructing Puppeteer to use HTTP proxy.
+
+You must:
+
+1. Configure `ignoreHTTPSErrors`
+2. Configure `--proxy-server`
+
+Example:
+
+```js
+import puppeteer from 'puppeteer';
+import {
+  createHeadlessCrawler
+} from 'headless-crawler';
+
+const main = async () => {
+  const browser = puppeteer.launch({
+    args: [
+      '--proxy-server=http://127.0.0.1:8080'
+    ],
+    ignoreHTTPSErrors: true
+  });
+
+  const headlessCrawler = createHeadlessCrawler({
+    onResult: (resource) => {
+      console.log(resource.content.title);
+    },
+    browser
+  });
+
+  await headlessCrawler.crawl('http://gajus.com/');
+};
+
+main();
+
+```
+
 ## Types
 
 This package is using [Flow](https://flow.org/) type annotations.
