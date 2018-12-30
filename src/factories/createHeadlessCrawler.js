@@ -73,6 +73,8 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
       const shouldAdvance = await headlessCrawlerConfiguration.onResult(resource);
 
       if (!shouldAdvance) {
+        log.info('onResult result signaled a stop');
+
         return;
       }
 
@@ -89,8 +91,16 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
           path
         };
 
+        log.trace({
+          link: queuedLink.linkUrl
+        }, 'attempting to queue a link');
+
         if (await headlessCrawlerConfiguration.filterLink(queuedLink, scrapedLinkHistory)) {
+          log.trace('link queued');
+
           linkQueue.push(queuedLink);
+        } else {
+          log.trace('link filtered out');
         }
       }
 
