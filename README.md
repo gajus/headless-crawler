@@ -15,6 +15,7 @@ A crawler implemented using a headless browser (Chrome).
     * [Configuration](#headless-crawler-configuration)
         * [Default `headlessCrawlerConfiguration.extractContent`](#headless-crawler-configuration-default-headlesscrawlerconfiguration-extractcontent)
         * [Default `headlessCrawlerConfiguration.filterLink`](#headless-crawler-configuration-default-headlesscrawlerconfiguration-filterlink)
+        * [Default `headlessCrawlerConfiguration.onError`](#headless-crawler-configuration-default-headlesscrawlerconfiguration-onerror)
         * [Default `headlessCrawlerConfiguration.onResult`](#headless-crawler-configuration-default-headlesscrawlerconfiguration-onresult)
         * [Default `headlessCrawlerConfiguration.sortQueuedLinks`](#headless-crawler-configuration-default-headlesscrawlerconfiguration-sortqueuedlinks)
         * [Default `headlessCrawlerConfiguration.waitFor`](#headless-crawler-configuration-default-headlesscrawlerconfiguration-waitfor)
@@ -155,6 +156,16 @@ type DefaultFilterLinkHandlerUserConfigurationType = {|
 ```
 
 Note: robots.txt support is implemented using [`robots-agent`](https://github.com/gajus/robots-agent).
+
+<a name="headless-crawler-configuration-default-headlesscrawlerconfiguration-onerror"></a>
+### Default <code>headlessCrawlerConfiguration.onError</code>
+
+```js
+(): ErrorHandlerType => {
+  return (error) => {};
+};
+
+```
 
 <a name="headless-crawler-configuration-default-headlesscrawlerconfiguration-onresult"></a>
 ### Default <code>headlessCrawlerConfiguration.onResult</code>
