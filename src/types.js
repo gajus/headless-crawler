@@ -36,6 +36,7 @@ export type CrawlConfigurationType = {|
 
 type MaybePromiseType<R> = R | Promise<R>;
 
+export type ErrorHandlerType = (error: Error) => MaybePromiseType<void>;
 export type ExtractContentHandlerType = (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => MaybePromiseType<string>;
 export type FilterLinkHandlerType = (link: SiteLinkType, scrapedLinkHistory: $ReadOnlyArray<SiteLinkType>) => MaybePromiseType<boolean>;
 export type PageHandlerType = (page: PuppeteerPageType, scrapeConfiguration: ScrapeConfigurationType) => MaybePromiseType<void>;
@@ -47,6 +48,7 @@ export type WaitForHandlerType = (page: PuppeteerPageType, scrapeConfiguration: 
  * @property browser Instance of [Puppeteer Browser](https://pptr.dev/#?product=Puppeteer&version=v1.11.0&show=api-class-browser).
  * @property extractContent A function [evaluted](https://pptr.dev/#?product=Puppeteer&version=v1.11.0&show=api-pageevaluatepagefunction-args) in the context of the browser. The result of the function is used to describe the contents of the website (see `ScrapeResultType#content` property).
  * @property filterLink Identifies which URLs to follow.
+ * @property onError Invoked whenever an error occurs.
  * @property onPage Invoked when [Puppeteer Page](https://pptr.dev/#?product=Puppeteer&version=v1.11.0&show=api-class-page) instance is instantiated.
  * @property onResult Invoked after content is extracted from a new page. Must return a boolean value indicating whether the crawler should advance to the next URL.
  * @property sortQueuedLinks Sorts queued links.
@@ -56,6 +58,7 @@ type HeadlessCrawlerUserConfigurationType = {|
   +browser: PuppeteerBrowserType,
   +extractContent?: ExtractContentHandlerType,
   +filterLink?: FilterLinkHandlerType,
+  +onError?: ErrorHandlerType,
   +onPage?: PageHandlerType,
   +onResult?: ResultHandlerType,
   +sortQueuedLinks?: SortQueuedLinksHandlerType,
@@ -66,6 +69,7 @@ type HeadlessCrawlerConfigurationType = {|
   +browser: PuppeteerBrowserType,
   +extractContent: ExtractContentHandlerType,
   +filterLink: FilterLinkHandlerType,
+  +onError: ErrorHandlerType,
   +onPage?: PageHandlerType,
   +onResult: ResultHandlerType,
   +sortQueuedLinks: SortQueuedLinksHandlerType,

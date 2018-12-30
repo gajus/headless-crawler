@@ -3,6 +3,7 @@
 import type {
   CreateHeadlessCrawlerConfigurationType
 } from '../types';
+import createDefaultErrorHandler from './createDefaultErrorHandler';
 import createDefaultExtractContentHandler from './createDefaultExtractContentHandler';
 import createDefaultFilterLinkHandler from './createDefaultFilterLinkHandler';
 import createDefaultResultHandler from './createDefaultResultHandler';
@@ -14,6 +15,7 @@ const createHeadlessCrawlerConfiguration: CreateHeadlessCrawlerConfigurationType
     browser: headlessCrawlerUserConfiguration.browser,
     extractContent: headlessCrawlerUserConfiguration.extractContent || createDefaultExtractContentHandler(),
     filterLink: headlessCrawlerUserConfiguration.filterLink || createDefaultFilterLinkHandler(),
+    onError: headlessCrawlerUserConfiguration.onError || createDefaultErrorHandler(),
     onPage: headlessCrawlerUserConfiguration.onPage,
     onResult: headlessCrawlerUserConfiguration.onResult || createDefaultResultHandler(),
     sortQueuedLinks: headlessCrawlerUserConfiguration.sortQueuedLinks || createDefaultSortQueuedLinksHandler(),

@@ -160,6 +160,17 @@ export default (): Promise<HttpServerType> => {
     `);
   });
 
+  app.get('/crawl/extract-content-error', (req, res) => {
+    res.send(`
+      <html>
+        <head>
+          <title>extract-content-error</title>
+        </head>
+        <body></body>
+      </html>
+    `);
+  });
+
   return new Promise((resolve, reject) => {
     const server = app.listen((error) => {
       if (error) {

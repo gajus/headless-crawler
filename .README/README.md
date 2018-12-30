@@ -131,6 +131,15 @@ type DefaultFilterLinkHandlerUserConfigurationType = {|
 
 Note: robots.txt support is implemented using [`robots-agent`](https://github.com/gajus/robots-agent).
 
+### Default `headlessCrawlerConfiguration.onError`
+
+```js
+(): ErrorHandlerType => {
+  return (error) => {};
+};
+
+```
+
 ### Default `headlessCrawlerConfiguration.onResult`
 
 The default `onResult` logs the result and advances crawler to the next URL.

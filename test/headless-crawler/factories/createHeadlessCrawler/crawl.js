@@ -7,6 +7,7 @@ import test, {
 import {
   stub
 } from 'sinon';
+import getPort from 'get-port';
 import deepMap from 'map-obj';
 import createHeadlessCrawler from '../../../../src/factories/createHeadlessCrawler';
 import createHttpServer from '../../../helpers/createHttpServer';
@@ -409,4 +410,51 @@ test('scrapes descendent until `onResult` returns `false`', async (t) => {
     ],
     url: serverAddress + '/crawl/single-page-with-links'
   });
+});
+
+test('invokes `onError` callback if `extractContent` throws an error', async (t) => {
+  const browser = await createBrowser();
+  const onError = stub();
+  const onResult = stub().returns(true);
+
+  const headlessCrawler = createHeadlessCrawler({
+    browser,
+    extractContent: () => {
+      return `(() => {
+        throw new Error('test');
+      })()`;
+    },
+    onError,
+    onResult
+  });
+
+  await headlessCrawler.crawl({
+    startUrl: serverAddress + '/crawl/extract-content-error'
+  });
+
+  t.true(onResult.callCount === 0);
+  t.true(onError.callCount === 1);
+  t.true(onError.args[0][0] instanceof Error);
+});
+
+test('invokes `onError` callback if navigation fails', async (t) => {
+  const browser = await createBrowser();
+  const onError = stub();
+  const onResult = stub().returns(true);
+
+  const headlessCrawler = createHeadlessCrawler({
+    browser,
+    onError,
+    onResult
+  });
+
+  const unusedPort = await getPort();
+
+  await headlessCrawler.crawl({
+    startUrl: 'http://127.0.0.1:' + unusedPort
+  });
+
+  t.true(onResult.callCount === 0);
+  t.true(onError.callCount === 1);
+  t.true(onError.args[0][0] instanceof Error);
 });

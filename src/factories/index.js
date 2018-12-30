@@ -1,5 +1,6 @@
 // @flow
 
+export {default as createDefaultErrorHandler} from './createDefaultErrorHandler';
 export {default as createDefaultExtractContentHandler} from './createDefaultExtractContentHandler';
 export {default as createDefaultFilterLinkHandler} from './createDefaultFilterLinkHandler';
 export {default as createDefaultResultHandler} from './createDefaultResultHandler';

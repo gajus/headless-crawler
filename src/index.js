@@ -1,6 +1,7 @@
 // @flow
 
 export {
+  createDefaultErrorHandler,
   createDefaultExtractContentHandler,
   createDefaultFilterLinkHandler,
   createDefaultResultHandler,

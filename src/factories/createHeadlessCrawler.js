@@ -1,5 +1,6 @@
 // @flow
 
+import serializeError from 'serialize-error';
 import {
   uniq
 } from 'lodash';
@@ -66,9 +67,23 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
     const run = async (nextUrl: string, path: $ReadOnlyArray<SiteLinkType>) => {
       scrapedLinkHistory = scrapedLinkHistory.concat([path[path.length - 1]]);
 
-      const resource = await scrape({
-        url: nextUrl
-      });
+      let resource;
+
+      try {
+        resource = await scrape({
+          url: nextUrl
+        });
+      } catch (error) {
+        log.error({
+          error: serializeError(error)
+        }, 'error has occured');
+
+        headlessCrawlerConfiguration.onError(error);
+      }
+
+      if (!resource) {
+        return;
+      }
 
       const shouldAdvance = await headlessCrawlerConfiguration.onResult(resource);
 
