@@ -1,18 +1,23 @@
 // @flow
 
 import serializeError from 'serialize-error';
+import Queue from 'better-queue';
 import {
   uniq
 } from 'lodash';
 import type {
-  CrawlConfigurationType,
   CreateHeadlessCrawlerType,
   PuppeteerPageType,
+  QueueConfigurationType,
   ScrapeConfigurationType,
   SiteLinkType
 } from '../types';
 import Logger from '../Logger';
 import createHeadlessCrawlerConfiguration from './createHeadlessCrawlerConfiguration';
+
+type QueueTaskType = {|
+  +path: $ReadOnlyArray<SiteLinkType>
+|};
 
 const log = Logger.child({
   namespace: 'createHeadlessCrawler'
@@ -25,6 +30,8 @@ const extractLinks = (page: PuppeteerPageType): $ReadOnlyArray<string> => {
 };
 
 const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserConfiguration) => {
+  let scrapedLinkHistory = [];
+
   const headlessCrawlerConfiguration = createHeadlessCrawlerConfiguration(headlessCrawlerUserConfiguration);
 
   const browser = headlessCrawlerConfiguration.browser;
@@ -61,91 +68,105 @@ const createHeadlessCrawler: CreateHeadlessCrawlerType = (headlessCrawlerUserCon
     };
   };
 
-  const crawl = async (crawlConfiguration: CrawlConfigurationType) => {
-    let scrapedLinkHistory = [];
-
-    const run = async (nextUrl: string, path: $ReadOnlyArray<SiteLinkType>) => {
-      scrapedLinkHistory = scrapedLinkHistory.concat([path[path.length - 1]]);
-
-      let resource;
-
-      try {
-        resource = await scrape({
-          url: nextUrl
-        });
-      } catch (error) {
-        log.error({
-          error: serializeError(error)
-        }, 'error has occured');
-
-        headlessCrawlerConfiguration.onError(error);
-      }
-
-      if (!resource) {
-        return;
-      }
-
-      const shouldAdvance = await headlessCrawlerConfiguration.onResult(resource);
-
-      if (!shouldAdvance) {
-        log.info('onResult result signaled a stop');
-
-        return;
-      }
-
-      log.debug('discovered %d new links', resource.links.length);
-
-      const linkQueue = [];
-
-      for (const link of resource.links) {
-        const queuedLink = {
-          lastAttemptedAt: null,
-          linkDepth: path.length,
-          linkUrl: link,
-          originUrl: nextUrl,
-          path
-        };
-
-        log.trace({
-          link: queuedLink.linkUrl
-        }, 'attempting to queue a link');
-
-        if (await headlessCrawlerConfiguration.filterLink(queuedLink, scrapedLinkHistory)) {
-          log.trace('link queued');
-
-          linkQueue.push(queuedLink);
-        } else {
-          log.trace('link filtered out');
-        }
-      }
-
-      log.debug('link queue size %d', linkQueue.length);
-
-      for (const link of linkQueue) {
-        const queuedLink = {
-          ...link,
-          lastAttemptedAt: Date.now()
-        };
-
-        await run(queuedLink.linkUrl, path.concat([
-          queuedLink
-        ]));
-      }
+  const runQueueTask = async (input: QueueTaskType, callback) => {
+    const currentLink = {
+      ...input.path[input.path.length - 1],
+      lastAttemptedAt: Date.now()
     };
 
-    await run(crawlConfiguration.startUrl, [
-      {
-        lastAttemptedAt: Date.now(),
-        linkDepth: 0,
-        linkUrl: crawlConfiguration.startUrl,
-        originUrl: null,
-        path: []
+    const currentPath = input.path.slice(0, -1).concat([currentLink]);
+
+    scrapedLinkHistory = scrapedLinkHistory.concat([currentLink]);
+
+    let resource;
+
+    try {
+      resource = await scrape({
+        url: currentLink.linkUrl
+      });
+    } catch (error) {
+      log.error({
+        error: serializeError(error)
+      }, 'error has occured');
+
+      headlessCrawlerConfiguration.onError(error);
+    }
+
+    if (!resource) {
+      callback(null);
+
+      return;
+    }
+
+    log.debug('discovered %d new links', resource.links.length);
+
+    const shouldAdvance = await headlessCrawlerConfiguration.onResult(resource);
+
+    if (!shouldAdvance) {
+      log.info('onResult result signaled a stop');
+
+      callback(null);
+
+      return;
+    }
+
+    for (const descendentLink of resource.links) {
+      const queuedLink = {
+        lastAttemptedAt: null,
+        linkDepth: currentPath.length,
+        linkUrl: descendentLink,
+        originUrl: currentLink.linkUrl,
+        path: currentPath
+      };
+
+      log.trace({
+        link: queuedLink.linkUrl
+      }, 'attempting to queue a link');
+
+      if (await headlessCrawlerConfiguration.filterLink(queuedLink, scrapedLinkHistory)) {
+        log.trace('link queued');
+
+        // eslint-disable-next-line no-use-before-define
+        localQueue.push({
+          path: currentPath.concat([
+            queuedLink
+          ]),
+          url: queuedLink.linkUrl
+        });
+      } else {
+        log.trace('link filtered out');
       }
-    ]);
+    }
+
+    callback(null, resource);
+  };
+
+  const localQueue = new Queue(runQueueTask, {
+    concurrent: headlessCrawlerUserConfiguration.concurrency
+  });
+
+  const queue = (queueConfiguration: QueueConfigurationType) => {
+    localQueue.push({
+      path: [
+        {
+          lastAttemptedAt: null,
+          linkDepth: 0,
+          linkUrl: queueConfiguration.url,
+          originUrl: null,
+          path: []
+        }
+      ]
+    });
+
+    return new Promise((resolve) => {
+      localQueue.on('drain', () => {
+        resolve();
+      });
+    });
   };
 
   return {
-    crawl,
+    queue,
     scrape
   };
 };

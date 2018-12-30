@@ -13,6 +13,7 @@ A crawler implemented using a headless browser (Chrome).
 ## Features
 
 * Scrapes websites using user-provided `extractContent` function and follows the observed URLs as instructed by `filterLink` and `onResult`.
+* Configurable concurrency.
 * Respects [robots.txt](https://en.wikipedia.org/wiki/Robots_exclusion_standard) (configurable) (see [Default `headlessCrawlerConfiguration.filterLink`](#headless-crawler-configuration-default-headlesscrawlerconfiguration-filterlink)).
 
 ## Usage
@@ -34,7 +35,7 @@ const main = async () => {
     browser
   });
 
-  await headlessCrawler.crawl('http://gajus.com/');
+  await headlessCrawler.queue('http://gajus.com/');
 };
 
 main();
@@ -46,6 +47,7 @@ main();
 ```js
 /**
  * @property browser Instance of [Puppeteer Browser](https://pptr.dev/#?product=Puppeteer&version=v1.11.0&show=api-class-browser).
+ * @property concurrency Maximum concurrency. Defaults to 5.
  * @property extractContent A function [evaluted](https://pptr.dev/#?product=Puppeteer&version=v1.11.0&show=api-pageevaluatepagefunction-args) in the context of the browser. The result of the function is used to describe the contents of the website (see `ScrapeResultType#content` property).
  * @property filterLink Identifies which URLs to follow.
  * @property onPage Invoked when [Puppeteer Page](https://pptr.dev/#?product=Puppeteer&version=v1.11.0&show=api-class-page) instance is instantiated.
@@ -55,6 +57,7 @@ main();
  */
 type HeadlessCrawlerUserConfigurationType = {|
   +browser: PuppeteerBrowserType,
+  +concurrency: number,
   +extractContent?: ExtractContentHandlerType,
   +filterLink?: FilterLinkHandlerType,
   +onPage?: PageHandlerType,
@@ -319,7 +322,7 @@ const main = async () => {
     browser
   });
 
-  await headlessCrawler.crawl('http://gajus.com/');
+  await headlessCrawler.queue('http://gajus.com/');
 };
 
 main();

@@ -12,6 +12,7 @@
   "dependencies": {
     "ajv": "^6.6.2",
     "array-flatten": "^2.1.2",
+    "better-queue": "^3.8.10",
     "boolean": "^0.2.0",
     "es6-error": "^4.1.1",
     "express": "^4.16.4",

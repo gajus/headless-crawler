@@ -78,8 +78,8 @@ test('uses `filterLink` to evaluate which URLs to scrape', async (t) => {
     filterLink
   });
 
-  await headlessCrawler.crawl({
-    startUrl: serverAddress + '/crawl/single-page-with-links'
+  await headlessCrawler.queue({
+    url: serverAddress + '/crawl/single-page-with-links'
   });
 
   t.true(filterLink.callCount === 3);
@@ -146,8 +146,8 @@ test('`filterLink` tracks link depth', async (t) => {
     filterLink
   });
 
-  await headlessCrawler.crawl({
-    startUrl: serverAddress + '/crawl/deep-links'
+  await headlessCrawler.queue({
+    url: serverAddress + '/crawl/deep-links'
   });
 
   t.true(filterLink.callCount === 3);
@@ -274,8 +274,8 @@ test('`filterLink` tracks visited URLs', async (t) => {
     filterLink
   });
 
-  await headlessCrawler.crawl({
-    startUrl: serverAddress + '/crawl/deep-links'
+  await headlessCrawler.queue({
+    url: serverAddress + '/crawl/deep-links'
   });
 
   t.true(filterLink.callCount === 3);
@@ -347,8 +347,8 @@ test('scrapes descendent links', async (t) => {
     onResult
   });
 
-  await headlessCrawler.crawl({
-    startUrl: serverAddress + '/crawl/single-page-with-links'
+  await headlessCrawler.queue({
+    url: serverAddress + '/crawl/single-page-with-links'
   });
 
   t.true(onResult.callCount === 4);
@@ -395,8 +395,8 @@ test('scrapes descendent until `onResult` returns `false`', async (t) => {
     onResult
   });
 
-  await headlessCrawler.crawl({
-    startUrl: serverAddress + '/crawl/single-page-with-links'
+  await headlessCrawler.queue({
+    url: serverAddress + '/crawl/single-page-with-links'
   });
 
   t.true(onResult.callCount === 1);
@@ -428,8 +428,8 @@ test('invokes `onError` callback if `extractContent` throws an error', async (t)
     onResult
   });
 
-  await headlessCrawler.crawl({
-    startUrl: serverAddress + '/crawl/extract-content-error'
+  await headlessCrawler.queue({
+    url: serverAddress + '/crawl/extract-content-error'
   });
 
   t.true(onResult.callCount === 0);
@@ -450,8 +450,8 @@ test('invokes `onError` callback if navigation fails', async (t) => {
 
   const unusedPort = await getPort();
 
-  await headlessCrawler.crawl({
-    startUrl: 'http://127.0.0.1:' + unusedPort
+  await headlessCrawler.queue({
+    url: 'http://127.0.0.1:' + unusedPort
   });
 
   t.true(onResult.callCount === 0);

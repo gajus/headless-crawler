@@ -30,8 +30,8 @@ export type ScrapeConfigurationType = {|
   +url: string
 |};
 
-export type CrawlConfigurationType = {|
-  +startUrl: string
+export type QueueConfigurationType = {|
+  +url: string
 |};
 
 type MaybePromiseType<R> = R | Promise<R>;
@@ -46,6 +46,7 @@ export type WaitForHandlerType = (page: PuppeteerPageType, scrapeConfiguration: 
 
 /**
  * @property browser Instance of [Puppeteer Browser](https://pptr.dev/#?product=Puppeteer&version=v1.11.0&show=api-class-browser).
+ * @property concurrency Maximum concurrency. Defaults to 5.
  * @property extractContent A function [evaluted](https://pptr.dev/#?product=Puppeteer&version=v1.11.0&show=api-pageevaluatepagefunction-args) in the context of the browser. The result of the function is used to describe the contents of the website (see `ScrapeResultType#content` property).
  * @property filterLink Identifies which URLs to follow.
  * @property onError Invoked whenever an error occurs.
@@ -56,6 +57,7 @@ export type WaitForHandlerType = (page: PuppeteerPageType, scrapeConfiguration: 
  */
 type HeadlessCrawlerUserConfigurationType = {|
   +browser: PuppeteerBrowserType,
+  +concurrency?: number,
   +extractContent?: ExtractContentHandlerType,
   +filterLink?: FilterLinkHandlerType,
   +onError?: ErrorHandlerType,
@@ -67,6 +69,7 @@ type HeadlessCrawlerUserConfigurationType = {|
 
 type HeadlessCrawlerConfigurationType = {|
   +browser: PuppeteerBrowserType,
+  +concurrency: number,
   +extractContent: ExtractContentHandlerType,
   +filterLink: FilterLinkHandlerType,
   +onError: ErrorHandlerType,
@@ -77,7 +80,7 @@ type HeadlessCrawlerConfigurationType = {|
 |};
 
 export type CreateHeadlessCrawlerType = (headlessCrawlerUserConfiguration: HeadlessCrawlerUserConfigurationType) => {|
-  crawl: (configuration: CrawlConfigurationType) => Promise<void>,
+  queue: (configuration: QueueConfigurationType) => Promise<void>,
   scrape: (configuration: ScrapeConfigurationType) => Promise<ScrapeResultType>
 |};
 

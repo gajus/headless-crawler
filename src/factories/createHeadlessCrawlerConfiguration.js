@@ -13,6 +13,7 @@ import createDefaultWaitForHandler from './createDefaultWaitForHandler';
 const createHeadlessCrawlerConfiguration: CreateHeadlessCrawlerConfigurationType = (headlessCrawlerUserConfiguration) => {
   return {
     browser: headlessCrawlerUserConfiguration.browser,
+    concurrency: headlessCrawlerUserConfiguration.concurrency || 5,
     extractContent: headlessCrawlerUserConfiguration.extractContent || createDefaultExtractContentHandler(),
     filterLink: headlessCrawlerUserConfiguration.filterLink || createDefaultFilterLinkHandler(),
     onError: headlessCrawlerUserConfiguration.onError || createDefaultErrorHandler(),
